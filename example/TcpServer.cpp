@@ -102,6 +102,8 @@ namespace http
 			ss << "------ Received Request from client ------\n\n";
 			log(ss.str());
 
+			std::cout << buffer << std::endl;
+
 			// sendResponse(); ====================================================
 
 			close(m_new_socket);
