@@ -4,18 +4,15 @@
 # include <vector>
 # include <iostream>
 
+# include "web_server.hpp"
+
 // En esta clase se parsea y guardan todos los datos extraidos de un archivo de configuración
 class Config
 {
 
 // Estructuras de datos de un servidor
 public:
-	
-	typedef struct s_listen
-	{
-		std::string	host;
-		int			port;
-	}				t_listen;
+
 
 	typedef struct s_error_page
 	{
@@ -26,6 +23,7 @@ public:
 	typedef struct s_location
 	{
 		std::vector<int>	method;
+		std::string			path;
 		std::string			root;
 		std::string			index;
 		std::string			upload_path;
@@ -39,13 +37,20 @@ public:
 	{
 		std::vector<t_error_page>	error_page;
 		std::vector<t_location>		location;
-		std::vector<t_listen>		listen;
-		std::string					server_name;
+		std::vector<std::string>	server_name;
+		std::string					host;
+		int							port;
 		int							client_max_body_size;
 	}								t_server;
 
 private:
-	std::vector<t_server>	server;
+	std::vector<t_server>	_server;
+
+public:
+	// Constructor
+	Config();
+	// Destructor
+	~Config();
 };
 
 #endif
