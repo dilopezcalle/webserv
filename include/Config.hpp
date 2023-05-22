@@ -33,18 +33,13 @@ public:
 		bool				upload_enable;
 	}				t_location;
 
-	typedef struct s_server
-	{
-		std::vector<t_error_page>	error_page;
-		std::vector<t_location>		location;
-		std::vector<std::string>	server_name;
-		std::string					host;
-		int							port;
-		int							client_max_body_size;
-	}								t_server;
-
 private:
-	std::vector<t_server>	_server;
+	std::vector<t_error_page>	error_page;
+	std::vector<t_location>		location;
+	std::vector<std::string>	server_name;
+	std::string					host;
+	int							port;
+	int							client_max_body_size;
 
 public:
 	// Constructor
