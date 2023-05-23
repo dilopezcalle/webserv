@@ -1,5 +1,7 @@
 #include <string.h>
 #include <unistd.h>
+#include <sstream>
+#include <fstream>
 
 #include "Server.hpp"
 #include "utils.hpp"
@@ -15,6 +17,7 @@ Server::Server(Config config)
 	this->_socketAddress.sin_family = AF_INET;
 	this->_socketAddress.sin_port = htons(this->_port);
 	this->_socketAddress.sin_addr.s_addr = inet_addr(this->_ip_address.c_str());
+	this->_serverResponse = this->buildResponse();
 }
 
 // ===== Destructor =====
@@ -107,6 +110,46 @@ int	Server::acceptConnection(void)
 	return (new_socket);
 }
 
+std::string Server::buildResponse()
+{
+	std::string filePath = "index.html"; // Ruta del archivo HTML
+
+    std::ifstream file(filePath.c_str()); // Abrir el archivo en modo lectura
+    if (!file)
+    {
+        throw serverException("Failed to open html file");
+    }
+
+    std::ostringstream fileContentStream;
+    fileContentStream << file.rdbuf(); // Leer todo el contenido del archivo en un flujo de salida
+
+    std::string fileContent = fileContentStream.str();
+
+    std::ostringstream response;
+    response << "HTTP/1.1 200 OK\n"
+             << "Content-Type: text/html\n"
+             << "Content-Length: " << fileContent.size() << "\n\n"
+             << fileContent;
+
+    return response.str();
+}
+
+void Server::sendResponse(int client_socket)
+{
+	unsigned long bytesSent;
+
+	bytesSent = write(client_socket, _serverResponse.c_str(), _serverResponse.size());
+
+	if (bytesSent == _serverResponse.size())
+	{
+		printMessage("------ Server Response sent to client ------\n\n");
+	}
+	else
+	{
+		printMessage("Error sending response to client");
+	}
+}
+
 int	Server::handleConnection(int client_socket)
 {
 	char	buffer[BUFFER_SIZE];
@@ -119,7 +162,7 @@ int	Server::handleConnection(int client_socket)
 	}
 
 	std::cout << "REQUEST: \n" << buffer << std::endl;
-
+	this->sendResponse(client_socket);
 	close(client_socket);
 	printMessage("Closing connection");
 	return (0);
