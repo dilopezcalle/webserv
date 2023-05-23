@@ -5,6 +5,7 @@
 
 #include "Server.hpp"
 #include "utils.hpp"
+#include "Request.hpp"
 
 #define BUFFER_SIZE 1024
 
@@ -161,7 +162,9 @@ int	Server::handleConnection(int client_socket)
 		return (1);
 	}
 
-	std::cout << "REQUEST: \n" << buffer << std::endl;
+	Request req(buffer);
+	std::cout << req << std::endl;
+    std::cout << "REQUEST: \n" << req.getFullRequest() << std::endl; 
 	this->sendResponse(client_socket);
 	close(client_socket);
 	printMessage("Closing connection");

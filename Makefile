@@ -11,6 +11,7 @@ SRCS			=	$(SRC_DIR)/webserver.cpp	\
 					$(SRC_DIR)/Config.cpp		\
 					$(SRC_DIR)/Server.cpp		\
 					$(SRC_DIR)/utils.cpp		\
+					$(SRC_DIR)/Request.cpp		\
 
 OBJS			=	$(SRCS:.cpp=.o)
 PREFIXED		=	$(addprefix $(OBJ_DIR)/, $(OBJS))
