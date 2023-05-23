@@ -1,5 +1,4 @@
 NAME			=	webserv
-LIBFT			=	libft.a
 SRC_DIR			=	src
 OBJ_DIR 		=	obj
 INC_DIR			=	include
@@ -8,7 +7,10 @@ RM				=	rm -rf
 CC				=	c++
 CFLAGS			=	-I $(INC_DIR) -Wall -Werror -Wextra
 
-SRCS			=	$(SRC_DIR)/web_server.cpp	\
+SRCS			=	$(SRC_DIR)/webserver.cpp	\
+					$(SRC_DIR)/Config.cpp		\
+					$(SRC_DIR)/Server.cpp		\
+					$(SRC_DIR)/utils.cpp		\
 
 OBJS			=	$(SRCS:.cpp=.o)
 PREFIXED		=	$(addprefix $(OBJ_DIR)/, $(OBJS))
@@ -23,9 +25,7 @@ RESET			=	"\\x1b[37m"
 $(NAME):	$(PREFIXED)
 	@printf \
 	"$(YELLOW)-------------- Project's files compiled --------------\n$(RESET)\n%-33.33s\r"
-	@make -C ./$(SRC_DIR)/libft
-	@cp ./$(SRC_DIR)/libft/$(LIBFT) .
-	@$(CC) $(CFLAGS) $(PREFIXED) $(LIBFT) -o $(NAME)
+	@$(CC) $(CFLAGS) $(PREFIXED) -o $(NAME)
 	@echo "\n${GREEN}-------------- Mandatory part compiled! --------------${RESET}\n"
 
 $(OBJ_DIR)/%.o:	%.cpp
@@ -38,13 +38,11 @@ $(OBJ_DIR)/%.o:	%.cpp
 all:	$(NAME)
 
 clean:
-	@make -C ./src/libft clean
 	@$(RM) $(OBJ) $(OBJ_DIR)
 	@echo "\n${GREEN}---------------------- Cleaned! ----------------------${RESET}\n"
 
 fclean:	clean
-	@make -C ./src/libft fclean
-	@$(RM) $(NAME) $(LIBFT) $(NAME).dSYM
+	@$(RM) $(NAME) $(NAME).dSYM
 
 re:		fclean all
 

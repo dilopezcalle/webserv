@@ -33,7 +33,7 @@ public:
 		bool				upload_enable;
 	}				t_location;
 
-private:
+public:
 	std::vector<t_error_page>	error_page;
 	std::vector<t_location>		location;
 	std::vector<std::string>	server_name;
