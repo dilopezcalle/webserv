@@ -84,8 +84,10 @@ void Request::getInfo(std::string const &str)
             if (pos != std::string::npos) 
             {
                 std::string firstWord = line.substr(0, pos);
+                // Saving host
                 if (firstWord == "Host:")
                     this->_host = line.substr(pos + 1);
+                // Saving connection
                 if (firstWord == "Connection:")
                     this->_connection = line.substr(pos + 1);
             }
@@ -104,9 +106,9 @@ void Request::getInfo(std::string const &str)
                 std::string::size_type bodyEnd = str.rfind(lines[lines.size() - 1]);
                 this->_fileContent = str.substr(bodyStart + 2, bodyEnd - bodyStart);
                 std::cout << "===========================================\n";
-                std::cout << "-> boundary: " << this->_boundary << std::endl;
-                std::cout << "-> bodyStart: " << bodyStart << std::endl;
-                std::cout << "-> bodyEnd: " << bodyEnd << std::endl;
+                // std::cout << "-> boundary: " << this->_boundary << std::endl;
+                // std::cout << "-> bodyStart: " << bodyStart << std::endl;
+                // std::cout << "-> bodyEnd: " << bodyEnd << std::endl;
                 std::cout << "-> FILENAME: " << this->_fileName << std::endl;
                 std::cout << "-> FILECONTENT: " << this->_fileContent;
                 std::cout << "===========================================\n";
@@ -124,7 +126,3 @@ std::ostream & operator<<(std::ostream &ost, const Request &src)
         << "-> HOST: " << src.getHost() << std::endl;
     return ost;
 }
-
-    //Falta connection. hay que gestionarlo por si es "close"
-    //Habría que cerrar del tirón en cuanto se mande la respuesta.
-    //Si es keep-alive hay que mantenerlo encendido.
