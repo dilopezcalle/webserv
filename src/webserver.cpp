@@ -5,6 +5,11 @@
 #include "utils.hpp"
 #include "utils_config.hpp"
 
+#include "web_server.hpp"
+
+Config	config;
+char	**temp_env;
+
 int	main(int argc, char **argv, char **env)
 {
 	if (argc > 2)
@@ -12,9 +17,10 @@ int	main(int argc, char **argv, char **env)
 		std::cout << "Error: bad args" << std::endl;
 		return 0;
 	}
-    Config config;
+    // Config config;
 	config.setEnvironment(env);
 	// config.printEnvironment();
+	temp_env = env;
 	std::vector<Config> configs;
 
 	if (argc == 2)

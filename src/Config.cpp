@@ -11,21 +11,21 @@ Config::Config()
 		t_location		location2;
 		
 		page1.n_error = 404;
-		page1.path = "./404.html";
+		page1.path = "www/error/404.html";
 		page2.n_error = 405;
-		page2.path = "./405.html";
+		page2.path = "www/error/405.html";
 		page3.n_error = 406;
-		page3.path = "./406.html";
+		page3.path = "www/error/406.html";
 
 		location1.method.push_back(GET);
 		location1.path = "/";
-		location1.root = "/www";
-		location1.index = "./homepage.html";
+		location1.root = "www";
+		location1.index = "./index.html";
 		
 		location2.method.push_back(POST);
 		location2.path = "/upload";
 		location2.upload_enable = true;
-		location2.upload_path = "/tmp/uploads/";
+		location2.upload_path = "www/uploads";
 
 		this->port = 8080;
 		this->host = "0.0.0.0";
