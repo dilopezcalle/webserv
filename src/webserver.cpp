@@ -5,13 +5,16 @@
 #include "utils.hpp"
 #include "utils_config.hpp"
 
-int	main(int argc, char *argv[], __attribute__((unused))char *envp[])
+int	main(int argc, char **argv, char **env)
 {
 	if (argc > 2)
 	{
 		std::cout << "Error: bad args" << std::endl;
 		return 0;
 	}
+    Config config;
+	config.setEnvironment(env);
+	// config.printEnvironment();
 	std::vector<Config> configs;
 
 	if (argc == 2)
@@ -25,7 +28,6 @@ int	main(int argc, char *argv[], __attribute__((unused))char *envp[])
             std::cout << "Element: " << element << std::endl;
         }
 	}
-    Config config;
 	try
 	{
 		Server server(config);

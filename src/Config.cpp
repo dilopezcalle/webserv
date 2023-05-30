@@ -53,3 +53,33 @@ std::string Config::getBody(void) const
 	return this->conf_body;
 }
 
+
+void Config::setEnvironment(char** env)
+{
+	// Recorrer el arreglo de punteros a char hasta encontrar el elemento nulo (final)
+	for (int i = 0; env[i] != nullptr; i++)
+	{
+		// Separar la cadena en la forma "clave=valor"
+		std::string envStr(env[i]);
+		size_t equalsPos = envStr.find('=');
+		if (equalsPos != std::string::npos)
+		{
+			std::string key = envStr.substr(0, equalsPos);
+			std::string value = envStr.substr(equalsPos + 1);
+			environment[key] = value;
+		}
+	}
+}
+
+const std::map<std::string, std::string> &Config::getEnvironment() const
+{
+	return environment;
+}
+
+void Config::printEnvironment(void) const
+{
+	for (std::map<std::string, std::string>::const_iterator it = this->environment.begin(); it != environment.end(); ++it)
+	{
+		std::cout << it->first << "=" << it->second << std::endl;
+	}
+}

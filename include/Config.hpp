@@ -12,7 +12,8 @@
 // En esta clase se parsea y guardan todos los datos extraidos de un archivo de configuración
 class Config
 {
-
+	private:
+		std::map<std::string, std::string> environment;
 	// Estructuras de datos de un servidor
 	public:
 		typedef struct s_error_page
@@ -51,6 +52,10 @@ class Config
 
 		//void setBody(std::string &server);
 		std::string getBody(void) const;
+		const std::map<std::string, std::string> &getEnvironment() const;
+    	void setEnvironment(char** env);
+		void printEnvironment(void) const;
+    
 };
 
 std::vector<std::string> extractServerBlocks(const std::string &filePath);
