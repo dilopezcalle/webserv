@@ -6,6 +6,7 @@
 
 #include "Response.hpp"
 #include "web_server.hpp"
+#include "utils.hpp"
 
 Response::Response(Request const &request) : _request(request)
 {
@@ -21,46 +22,46 @@ Response::~Response()
 
 int	Response::generateResponse(void)
 {
-	// Cambiar los valores del environment
-	// ...
-
-
-	// Check route in config
 	bool	route_exist = false;
 	int 	i;
 
 	for (i = 0; i < (int)config.location.size() && route_exist == false; i++)
+	{
 		if (_request.getRoute() == config.location[i].path)
 		{
 			route_exist = true;
 			break ;
 		}
-	if (route_exist == false || i == (int)config.location.size())
+		if (config.location[i].path != "/")
+			continue ;
+		std::ifstream file(config.location[i].root + _request.getRoute());
+		if (file.is_open() != 0)
+		{
+			file.close();
+			route_exist = true;
+			break ;
+		}
+	}	
+	
+	if (route_exist == false || i >= (int)config.location.size())
 		setErrorPage(404);
-
-
 	if (_errorPage == 0)
-	{
 		methodBuild(i);
-	}
-
 	if (_errorPage == 0)
-	{
-		// EXPORT METHOD
-	}
+		config.exportEnv("REQUEST_METHOD", _request.getMethod());
 	executeCGI();
-	// Ejecutar el CGI
-	// Guardar la respuesta del CGI
 	return (0);
 }
 
 int	Response::methodBuild(int location_index)
 {
-	if (_errorPage == 0)
-		_fullPath = config.location[location_index].root; // /www/./index.html
+	_fullPath = config.location[location_index].root; // /www/./index.html
 	if (_request.getMethod() == "GET" && checkMethodRequest(location_index, GET) == 0)
 	{
-		_fullPath += "/" + config.location[location_index].index;
+		if (_request.getRoute() == config.location[location_index].path)
+			_fullPath += "/" + config.location[location_index].index;
+		else
+			_fullPath += "/" + _request.getRoute();
 		std::ifstream file(_fullPath);
 		if (file.is_open() == 0)
 			return (setErrorPage(404));
@@ -112,7 +113,7 @@ int	Response::setErrorPage(int error)
 {
 	int	i;
 
-	// EXPORT METHOD GET
+	config.exportEnv("REQUEST_METHOD", "GET");
 	_errorPage = error;
 	for (i = 0; i < 3; i++)
 		if (config.error_page[i].n_error == error)
@@ -135,9 +136,10 @@ int	Response::executeCGI(void)
 	else if (pid == 0)
 	{
 		close(fd[0]);
+		char **env = getCharMap(config.getEnvironment());
 		dup2(fd[1], 1);
 		close(fd[1]);
-		execve(*cgi_args, cgi_args, temp_env);
+		execve(*cgi_args, cgi_args, env);
 	}
 	else
 	{

@@ -17,6 +17,5 @@ enum METHOD
 };
 
 extern Config	config;
-extern char		**temp_env;
 
 #endif

@@ -8,7 +8,6 @@
 #include "web_server.hpp"
 
 Config	config;
-char	**temp_env;
 
 int	main(int argc, char **argv, char **env)
 {
@@ -19,9 +18,8 @@ int	main(int argc, char **argv, char **env)
 	}
     // Config config;
 	config.setEnv(env);
-	config.exportEnv("REQUEST_METHOD", "GET");
-	//config.printEnv();
-	temp_env = env;
+	// config.exportEnv("REQUEST_METHOD", "GET");
+	// config.printEnv();
 	std::vector<Config> configs;
 
 	if (argc == 2)
