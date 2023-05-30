@@ -54,7 +54,7 @@ std::string Config::getBody(void) const
 }
 
 
-void Config::setEnvironment(char** env)
+void Config::setEnv(char** env)
 {
 	// Recorrer el arreglo de punteros a char hasta encontrar el elemento nulo (final)
 	for (int i = 0; env[i] != nullptr; i++)
@@ -76,10 +76,13 @@ const std::map<std::string, std::string> &Config::getEnvironment() const
 	return environment;
 }
 
-void Config::printEnvironment(void) const
+void Config::printEnv(void) const
 {
 	for (std::map<std::string, std::string>::const_iterator it = this->environment.begin(); it != environment.end(); ++it)
-	{
 		std::cout << it->first << "=" << it->second << std::endl;
-	}
+}
+
+void Config::exportEnv(const std::string &key, const std::string &value)
+{
+	environment[key] = value;
 }

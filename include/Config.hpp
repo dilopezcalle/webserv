@@ -53,9 +53,9 @@ class Config
 		//void setBody(std::string &server);
 		std::string getBody(void) const;
 		const std::map<std::string, std::string> &getEnvironment() const;
-    	void setEnvironment(char** env);
-		void printEnvironment(void) const;
-    
+    	void setEnv(char** env);
+		void printEnv(void) const;
+		void exportEnv(const std::string &key, const std::string &value);
 };
 
 std::vector<std::string> extractServerBlocks(const std::string &filePath);

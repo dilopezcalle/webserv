@@ -18,8 +18,9 @@ int	main(int argc, char **argv, char **env)
 		return 0;
 	}
     // Config config;
-	config.setEnvironment(env);
-	// config.printEnvironment();
+	config.setEnv(env);
+	config.exportEnv("REQUEST_METHOD", "GET");
+	//config.printEnv();
 	temp_env = env;
 	std::vector<Config> configs;
 
