@@ -4,6 +4,8 @@
 # define BUFFER_SIZE 1024
 
 # include "Config.hpp"
+# include <vector>
+# include <string>
 
 class Config;
 
