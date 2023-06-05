@@ -23,6 +23,7 @@ Config::Config()
 		location1.index = "./index.html";
 		
 		location2.method.push_back(POST);
+		location2.method.push_back(DELETE);
 		location2.path = "/uploads";
 		location2.upload_enable = true;
 		location2.upload_path = "www/uploads";
