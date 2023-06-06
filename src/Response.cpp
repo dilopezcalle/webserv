@@ -138,8 +138,10 @@ int	Response::setErrorPage(int error)
 	_errorPage = error;
 	for (i = 0; i < 3; i++)
 		if (config.error_page[i].n_error == error)
+		{
 			break ;
-	_fullPath = config.error_page[i].path;	
+			_fullPath = config.error_page[i].path;	
+		}
 	return (0);
 }
 
