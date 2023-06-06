@@ -100,11 +100,12 @@ void Request::getInfo(std::string const &str)
                 // Saving filename
                 std::string st = line.substr(pos + 9);
                 st.erase(std::remove(st.begin(), st.end(), '\"'), st.end());
+                st.erase(std::remove(st.begin(), st.end(), '\r'), st.end());
                 this->_fileName = st;
                 // Saving filecontent
-                std::string::size_type bodyStart = str.find(lines[i + 1]) + lines[i + 1].length();
+                std::string::size_type bodyStart = str.find(lines[i + 1]) + lines[i + 1].length() + 3;
                 std::string::size_type bodyEnd = str.rfind(lines[lines.size() - 1]);
-                this->_fileContent = str.substr(bodyStart + 2, bodyEnd - bodyStart);
+                this->_fileContent = str.substr(bodyStart, bodyEnd - bodyStart);
                 std::cout << "===========================================\n";
                 // std::cout << "-> boundary: " << this->_boundary << std::endl;
                 // std::cout << "-> bodyStart: " << bodyStart << std::endl;
