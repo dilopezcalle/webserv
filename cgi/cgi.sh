@@ -5,7 +5,7 @@ if [ "$REQUEST_METHOD" == "GET" ]
 then
 	content=$(cat "$1")
 	size=${#content}
-	echo "HTTP/1.1 200 OK"
+	echo "HTTP/1.1 $REQUEST_STATUS OK"
     echo "Content-Length: $size"
 	echo ""
     echo "$content"
@@ -14,13 +14,13 @@ fi
 # Ya esta comprobado que el archivo no existe
 if [ "$REQUEST_METHOD" == "POST" ]
 then
-	echo "HTTP/1.1 200 OK"
+	echo "HTTP/1.1 $REQUEST_STATUS OK"
 	echo ""
 fi
 
 if [ "$REQUEST_METHOD" == "DELETE" ]
 then
 	rm -rf "$REQUEST_ROUTE"
-	echo "HTTP/1.1 200 OK"
+	echo "HTTP/1.1 $REQUEST_STATUS OK"
 	echo ""
 fi
