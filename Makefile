@@ -5,7 +5,7 @@ INC_DIR			=	include
 
 RM				=	rm -rf
 CC				=	c++
-CFLAGS			=	-I $(INC_DIR) -Wall -Werror -Wextra  -g3 -fsanitize=address# -std=c++98
+CFLAGS			=	-I $(INC_DIR) -Wall -Werror -Wextra  -g3 -fsanitize=address #-std=c++98
 
 SRCS			=	$(SRC_DIR)/webserver.cpp	\
 					$(SRC_DIR)/Config.cpp		\
@@ -26,7 +26,6 @@ RESET			=	"\\x1b[37m"
 # =================================== RULES ===================================
 
 $(NAME):	$(PREFIXED)
-	@mkdir -p www/uploads
 	@printf \
 	"$(YELLOW)-------------- Project's files compiled --------------\n$(RESET)\n%-33.33s\r"
 	@$(CC) $(CFLAGS) $(PREFIXED) -o $(NAME)
