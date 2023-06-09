@@ -28,7 +28,7 @@ Config::Config()
 	location2.upload_path = "www/uploads";
 
 	this->port = 8080;
-	this->host = "0.0.0.0";
+	this->host = "127.0.0.1";
 	this->server_name.push_back("localhost");
 	this->client_max_body_size = 500000;
 	this->error_page.push_back(page1);

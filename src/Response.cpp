@@ -56,6 +56,10 @@ int	Response::generateResponse(void)
 	{
 		config.exportEnv("REQUEST_METHOD", _request.getMethod());
 		config.exportEnv("REQUEST_STATUS", "200");
+		config.exportEnv("CONFIG_HOST", config.host);
+		std::stringstream ss;
+    	ss << config.port;
+		config.exportEnv("CONFIG_PORT", ss.str());
 	}
 	executeCGI();
 	return (0);
@@ -80,7 +84,6 @@ int	Response::methodBuild(int location_index)
 	_fullPath = config.location[location_index].root + config.location[location_index].upload_path;
 	if (_request.getMethod() == "GET" && checkMethodRequest(location_index, GET) == 0)
 	{
-		std::cout << "route: " << _route << std::endl;
 		if (_request.getRoute() == config.location[location_index].path)
 			_fullPath += "/" + config.location[location_index].index;
 		else
@@ -111,7 +114,7 @@ int	Response::methodBuild(int location_index)
 	}
 	else if (_request.getMethod() == "DELETE" && checkMethodRequest(location_index, DELETE) == 0)
 	{
-		_fullPath += config.location[location_index].upload_path + _route;
+		_fullPath += _route;
 		std::ifstream file(_fullPath);
 		if (file.is_open() == 0)
 			return (setErrorPage(404));
