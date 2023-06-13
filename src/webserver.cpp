@@ -5,6 +5,7 @@
 #include "Server.hpp"
 #include "utils.hpp"
 #include "utils_config.hpp"
+#include "tests.hpp"
 
 #include "web_server.hpp"
 
@@ -40,6 +41,8 @@ int	main(int argc, char **argv, char **env)
 				tmp.printConf();
 				configs.push_back(tmp);
 			}
+			// De momento solo usamos el primer server
+			testConfigs(configs);
 			Server server(configs[0]);
 			server.startServer();
 			server.startListen();

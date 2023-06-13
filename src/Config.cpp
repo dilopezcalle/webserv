@@ -49,7 +49,7 @@ Config	&Config::operator=(const Config &src)
 
 	{
 		// server_name vector
-		typename std::vector<std::string>::iterator it = this->server_name.begin();
+		std::vector<std::string>::iterator it = this->server_name.begin();
 		while (it != this->server_name.end())
 			it = this->server_name.erase(it);
 		this->server_name.clear();
@@ -59,7 +59,7 @@ Config	&Config::operator=(const Config &src)
 	{
 		// location vector
 		std::cout << "locationSize before: " << this->location.size() << std::endl;
-		typename std::vector<t_location>::iterator it = this->location.begin();
+		std::vector<t_location>::iterator it = this->location.begin();
 		while (it != this->location.end())
 			it = this->location.erase(it);
 		this->location.clear();
@@ -69,7 +69,7 @@ Config	&Config::operator=(const Config &src)
 	}
 	{
 		// error_page vector
-		typename std::vector<t_error_page>::iterator it = this->error_page.begin();
+		std::vector<t_error_page>::iterator it = this->error_page.begin();
 		while (it != this->error_page.end())
 			it = this->error_page.erase(it);
 		this->error_page.clear();
@@ -168,8 +168,9 @@ void Config::fillFields(const std::string &src)
 			if (!word.empty())
 				words.push_back(word);
 		}
+		// Igual tenemos que meter uno como este para cada parametro
 		if (words.size() > 3)
-			throw std::runtime_error("Error: Missing config fields");
+			throw std::runtime_error("Error: too many fields");
 		// Agregar un comentario para cada palabra clave encontrada
 		if (words[0] == "listen")
 		{
@@ -197,7 +198,13 @@ void Config::fillFields(const std::string &src)
 		else if (words[0] == "server_name")
 		{
 			for (i = 1; i < words.size(); i++)
-				this->server_name.push_back(words[i]);
+			{
+				if (words[i] == "localhost")
+					words[i] = "127.0.0.1";
+				std::vector<std::string>::iterator it = std::find(server_name.begin(), server_name.end(), words[i]);
+				if (it == server_name.end() || it->size() != words[i].size())
+					this->server_name.push_back(words[i]);
+			}
 		}
 		else if (words[0] == "location" || inLocation)
 		{
