@@ -58,12 +58,10 @@ Config	&Config::operator=(const Config &src)
 	}
 	{
 		// location vector
-		std::cout << "locationSize before: " << this->location.size() << std::endl;
 		std::vector<t_location>::iterator it = this->location.begin();
 		while (it != this->location.end())
 			it = this->location.erase(it);
 		this->location.clear();
-		std::cout << "locationSize after: " << this->location.size() << std::endl;
 		for (size_t i = 0; i < src.location.size(); i++)
 			this->location.push_back(src.location[i]);
 	}

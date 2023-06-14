@@ -11,6 +11,7 @@
 #include <sstream>
 #include <string>
 #include <unistd.h>
+#include <algorithm>
 
 // En esta clase se parsea y guardan todos los datos extraidos de un archivo de configuración
 class Config
