@@ -18,12 +18,14 @@ void testConfigs(std::vector<Config> configs)
         if (std::find(ports.begin(), ports.end(), configs[i].port) != ports.end())
             throw std::runtime_error("Error: duplicated ports.");
         ports.push_back(configs[i].port);
-        for(size_t j = 0; j < configs[i].server_name.size(); j++)
+        /* for(size_t j = 0; j < configs[i].server_name.size(); j++)
         {
             if (std::find(hosts.begin(), hosts.end(), configs[i].server_name[j]) != hosts.end())
                 throw std::runtime_error("Error: duplicated hosts.");
             hosts.push_back(configs[i].server_name[j]);
-        }
+        } */
+        if (configs[i].host.empty())
+            throw std::runtime_error("Error: host is empty.");
     }
 }
 

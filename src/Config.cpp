@@ -290,7 +290,7 @@ void Config::saveLocation(std::vector<std::string> &words, std::size_t &location
 
 void Config::saveServerName(std::vector<std::string> &words)
 {
-	// Max 3 server names. POR REVISAR!
+	/* // Max 3 server names. POR REVISAR!
 	if (words.size() > 4)
 			throw std::runtime_error("Error: too many fields");
 	for (size_t i = 1; i < words.size(); i++)
@@ -300,7 +300,14 @@ void Config::saveServerName(std::vector<std::string> &words)
 		std::vector<std::string>::iterator it = std::find(server_name.begin(), server_name.end(), words[i]);
 		if (it == server_name.end() || it->size() != words[i].size())
 			this->server_name.push_back(words[i]);
-	}
+	} */
+	// Max 1 server name and must be localhost.
+	if (words.size() != 2)
+		throw std::runtime_error("Error: obligatory one server name per server.");
+	if (words[1] != "localhost" && words[1] != "127.0.0.1")
+		throw std::runtime_error("Error: only localhost or 127.0.0.1 allowed as server name.");
+	this->server_name.push_back("127.0.0.1");
+	this->host = "127.0.0.1";
 }
 
 void Config::saveListen(const std::vector<std::string> &words)
@@ -317,7 +324,10 @@ void Config::saveListen(const std::vector<std::string> &words)
 	{
 		// si hay dos puntos separamos el host del puerto y los guardamos
 		std::string ipAddress = words[1].substr(0, pos);
-		if (isValidIPAddress(ipAddress))
+		/* if (isValidIPAddress(ipAddress))
+			this->host = ipAddress;
+		 */
+		if (ipAddress == "127.0.0.1")
 			this->host = ipAddress;
 		else
 			throw std::runtime_error("Error: bad ip address");
