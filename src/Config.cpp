@@ -171,6 +171,7 @@ void Config::fillFields(const std::string &src)
 						throw std::runtime_error("Error: location {} not closed");
 				// Creamos un location y lo pusheamos al vector
 				t_location tmp;
+				initLocation(tmp);
 				tmp.path = words[1];
 				this->location.push_back(tmp);
 				locationIndex = location.size() - 1;
@@ -249,6 +250,18 @@ void Config::saveErrorPage(std::vector<std::string> &words)
 	this->error_page.push_back(tmp);
 }
 
+void Config::initLocation(Config::t_location &src)
+{
+	src.path = "";
+    src.root = "";
+    src.index = "";
+    src.upload_path = "";
+    src.cgi_extension = "";
+    src.cgi_path = "";
+    src.autoindex = true;
+    src.upload_enable = false;
+}
+
 void Config::saveLocation(std::vector<std::string> &words, std::size_t &locationIndex)
 {
 	if (words[0] == "method")
@@ -275,16 +288,16 @@ void Config::saveLocation(std::vector<std::string> &words, std::size_t &location
 	else if (words[0] == "autoindex")
 	{
 		if (words[1] == "on" || words[1] == "ON")
-			this->location[locationIndex].autoindex = 1;
+			this->location[locationIndex].autoindex = true;
 		if (words[1] == "off" || words[1] == "OFF")
-			this->location[locationIndex].autoindex = 0;
+			this->location[locationIndex].autoindex = false;
 	}
 	else if (words[0] == "upload_enable")
 	{
 		if (words[1] == "true" || words[1] == "TRUE")
-			this->location[locationIndex].upload_enable = 1;
+			this->location[locationIndex].upload_enable = true;
 		if (words[1] == "false" || words[1] == "FALSE")
-			this->location[locationIndex].upload_enable = 0;
+			this->location[locationIndex].upload_enable = false;
 	}
 }
 
