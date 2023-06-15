@@ -181,7 +181,11 @@ void Config::fillFields(const std::string &src)
 			{
 				saveLocation(words, locationIndex);
 				if (lines[i].find("}") != std::string::npos)
+				{
+					if (location[locationIndex].autoindex == true)
+						location[locationIndex].index = "index.html";
 					inLocation = 0;
+				}
 			}
 		}
 	}
@@ -275,6 +279,16 @@ void Config::saveLocation(std::vector<std::string> &words, std::size_t &location
 		else
 			throw std::runtime_error("Error: bad location method");
 	}
+	else if (words[0] == "autoindex")
+	{
+		if (words[1] == "on" || words[1] == "ON")
+			this->location[locationIndex].autoindex = true;
+		if (words[1] == "off" || words[1] == "OFF")
+		{
+			this->location[locationIndex].index = "";
+			this->location[locationIndex].autoindex = false;
+		}
+	}
 	else if (words[0] == "root")
 		this->location[locationIndex].root = words[1];
 	else if (words[0] == "index")
@@ -285,18 +299,11 @@ void Config::saveLocation(std::vector<std::string> &words, std::size_t &location
 		this->location[locationIndex].cgi_extension = words[1];
 	else if (words[0] == "cgi_path")
 		this->location[locationIndex].cgi_path = words[1];
-	else if (words[0] == "autoindex")
-	{
-		if (words[1] == "on" || words[1] == "ON")
-			this->location[locationIndex].autoindex = true;
-		if (words[1] == "off" || words[1] == "OFF")
-			this->location[locationIndex].autoindex = false;
-	}
 	else if (words[0] == "upload_enable")
 	{
-		if (words[1] == "true" || words[1] == "TRUE")
+		if (words[1] == "on" || words[1] == "ON")
 			this->location[locationIndex].upload_enable = true;
-		if (words[1] == "false" || words[1] == "FALSE")
+		if (words[1] == "off" || words[1] == "OFF")
 			this->location[locationIndex].upload_enable = false;
 	}
 }
