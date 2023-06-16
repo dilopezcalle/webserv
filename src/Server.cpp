@@ -27,7 +27,19 @@ Server::~Server()
 	close(this->_socket);
 }
 
+
 // ===== Methods =====
+int	Server::deleteClientSocket(int client_socket)
+{
+	std::vector<int>::iterator it = std::find(this->_clientSockets.begin(), this->_clientSockets.end(), client_socket);
+    if (it != this->_clientSockets.end())
+	{
+        std::copy(it + 1, this->_clientSockets.end(), it);
+        this->_clientSockets.pop_back();
+    }
+	return (0);
+}
+
 int		Server::startServer(void)
 {
 	this->_socket = socket(AF_INET, SOCK_STREAM, 0);
@@ -66,17 +78,21 @@ int	Server::startListen(void)
 
 	max_socket = this->_socket;
 
+	// struct timeval tv;
+	// tv.tv_sec = 10;
+	// tv.tv_usec = 0;
+
 	while (1)
 	{
 		// Select is destructive
 		ready_sockets = current_sockets;
-
 		if (select(max_socket + 1, &ready_sockets, NULL, NULL, NULL) < 0)
 		{
 			throw serverException(strerror(errno));
 			return (1);
 		}
-		for (int i = 0; i <= max_socket; i++)
+		int i;
+		for (i = 0; i <= max_socket; i++)
 		{
 			if (!FD_ISSET(i, &ready_sockets))
 				continue ; // write_set?
@@ -94,6 +110,8 @@ int	Server::startListen(void)
 				FD_CLR(i, &current_sockets);
 			}
 		}
+		// if (!FD_ISSET(i, &ready_sockets))
+		// 	break ;
 	}
 	return (0);
 }
