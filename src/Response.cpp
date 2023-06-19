@@ -82,7 +82,10 @@ int	Response::getRoutes(void)
 
 int	Response::methodBuild(int location_index)
 {
-	_fullPath = this->_config.location[location_index].root + this->_config.location[location_index].upload_path;
+	if (this->_config.location[location_index].upload_enable)
+		_fullPath = this->_config.location[location_index].upload_path;
+	else
+		_fullPath = this->_config.location[location_index].root;
 	if (_request.getMethod() == "GET" && checkMethodRequest(location_index, GET) == 0)
 	{
 		if (_request.getRoute() == this->_config.location[location_index].path)
@@ -96,7 +99,7 @@ int	Response::methodBuild(int location_index)
 	}
 	else if (_request.getMethod() == "POST" && checkMethodRequest(location_index, POST) == 0)
 	{
-		_fullPath += "/" + _request._fileName;
+		_fullPath += _request._fileName;
 		std::ifstream file(_fullPath);
 		if (file.is_open())
 		{
