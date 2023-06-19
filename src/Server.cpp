@@ -20,13 +20,11 @@ Server::Server(Config conf)
 	this->_socketAddress.sin_port = htons(this->_port);
 	this->_socketAddress.sin_addr.s_addr = inet_addr(this->_ip_address.c_str());
 }
-
-// ===== Destructor =====
 Server::~Server()
 {
 	close(this->_socket);
+	return ;
 }
-
 
 // ===== Methods =====
 int	Server::deleteClientSocket(int client_socket)
@@ -48,70 +46,15 @@ int		Server::startServer(void)
 		throw serverException("Cannot create socket");
 		return (1);
 	}
-
 	if (bind(this->_socket, (sockaddr *)&this->_socketAddress, this->_socketAddress_len) < 0)
 	{
 		throw serverException("Cannot connect socket to address");
 		return (1);
 	}
-
 	if (listen(this->_socket, 20) < 0)
 	{
 		throw serverException("Socket listen failed");
 		return (1);
-	}
-	return (0);
-}
-
-int	Server::startListen(void)
-{
-	printMessage("===== Listening =====");
-	printMessage("ADDRESS: " + std::string(inet_ntoa(this->_socketAddress.sin_addr)));
-	std::cout << "PORT: " << ntohs(this->_socketAddress.sin_port) << std::endl;
-
-	fd_set	current_sockets, ready_sockets;
-	int		max_socket;
-
-	// Initialize current set
-	FD_ZERO(&current_sockets);
-	FD_SET(this->_socket, &current_sockets);
-
-	max_socket = this->_socket;
-
-	// struct timeval tv;
-	// tv.tv_sec = 10;
-	// tv.tv_usec = 0;
-
-	while (1)
-	{
-		// Select is destructive
-		ready_sockets = current_sockets;
-		if (select(max_socket + 1, &ready_sockets, NULL, NULL, NULL) < 0)
-		{
-			throw serverException(strerror(errno));
-			return (1);
-		}
-		int i;
-		for (i = 0; i <= max_socket; i++)
-		{
-			if (!FD_ISSET(i, &ready_sockets))
-				continue ; // write_set?
-			if (i == this->_socket)
-			{
-				// New connection
-				int new_socket = acceptConnection();
-				FD_SET(new_socket, &current_sockets);
-				if (new_socket > max_socket)
-					max_socket = new_socket;
-			}
-			else
-			{
-				handleConnection(i);
-				FD_CLR(i, &current_sockets);
-			}
-		}
-		// if (!FD_ISSET(i, &ready_sockets))
-		// 	break ;
 	}
 	return (0);
 }
@@ -152,6 +95,15 @@ int	Server::handleConnection(int client_socket)
 	return (0);
 }
 
+void Server::sendResponse(int client_socket)
+{
+	unsigned long bytesSent;
+
+	bytesSent = write(client_socket, _serverResponse.c_str(), _serverResponse.size());
+	if (bytesSent != _serverResponse.size())
+		printMessage("Error sending response to client");
+}
+
 // ===== Exception =====
 Server::serverException::serverException(const char *error)
 {
@@ -162,39 +114,3 @@ const char *Server::serverException::what() const throw()
 {
 	return (this->_error);
 };
-
-
-
-std::string Server::buildResponse()
-{
-	std::string filePath = "index.html"; // Ruta del archivo HTML
-
-    std::ifstream file(filePath.c_str()); // Abrir el archivo en modo lectura
-    if (!file)
-    {
-        throw serverException("Failed to open html file");
-    }
-
-    std::ostringstream fileContentStream;
-    fileContentStream << file.rdbuf(); // Leer todo el contenido del archivo en un flujo de salida
-
-    std::string fileContent = fileContentStream.str();
-
-    std::ostringstream response;
-    response << "HTTP/1.1 200 OK\n"
-             << "Content-Type: text/html\n"
-             << "Content-Length: " << fileContent.size() << "\n\n"
-             << fileContent;
-
-    return response.str();
-}
-
-void Server::sendResponse(int client_socket)
-{
-	unsigned long bytesSent;
-
-	bytesSent = write(client_socket, _serverResponse.c_str(), _serverResponse.size());
-
-	if (bytesSent != _serverResponse.size())
-		printMessage("Error sending response to client");
-}

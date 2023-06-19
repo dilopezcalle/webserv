@@ -13,6 +13,7 @@ public:
 	std::string	_route;			// /eliminame.txt
 	int			_errorPage;
 	Config		_config;
+	bool		_routeExist;
 
 public:
 	Response(const Config conf, Request const &request);
@@ -26,6 +27,9 @@ private:
 	int	setErrorPage(int error);
 	int	methodBuild(int location_index);
 	int	executeCGI(void);
+	int	buildPost(void);
+	int	buildDelete(void);
+	int	checkRoute(void);
 };
 
 #endif

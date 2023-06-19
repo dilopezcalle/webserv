@@ -27,11 +27,8 @@ public:
 
 	// ===== Methods =====
 	int	startServer(void);
-	int	startListen(void);
 	int	acceptConnection(void);
 	int	handleConnection(int client_socket);
-	std::string buildResponse(void);
-	void sendResponse(int client_socket);
 	int	deleteClientSocket(int client_socket);
 
 	// ===== Exception =====
@@ -44,6 +41,10 @@ public:
 		serverException(const char *error);
 		virtual const char *what() const throw();
     };
+
+private:
+	std::string buildResponse(void);
+	void sendResponse(int client_socket);
 };
 
 #endif

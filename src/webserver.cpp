@@ -10,8 +10,6 @@
 
 #include "web_server.hpp"
 
-Config	config;
-
 int	main(int argc, char **argv, char **env)
 {
 	if (argc > 2)
@@ -19,10 +17,8 @@ int	main(int argc, char **argv, char **env)
 		std::cout << "Error: bad args" << std::endl;
 		return 0;
 	}
-    // Config config;
+    Config config;
 	config.setEnv(env);
-	// config.exportEnv("REQUEST_METHOD", "GET");
-	// config.printEnv();
 	try
 	{
 		if (argc == 2)
@@ -47,9 +43,8 @@ int	main(int argc, char **argv, char **env)
 			Route route(configs);
 			route.startListen();
 		} else {
-			Server server(config);
-			server.startServer();
-			server.startListen();
+			Route route(config);
+			route.startListen();
 		}
 	}
 	catch (std::exception &e)

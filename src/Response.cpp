@@ -17,7 +17,6 @@ Response::Response(const Config conf, Request const &request) : _request(request
 	_errorPage = 0;
 	return ;
 }
-
 Response::~Response()
 {
 	return ;
@@ -25,31 +24,9 @@ Response::~Response()
 
 int	Response::generateResponse(void)
 {
-	bool		route_exist = false;
-	int 		i;
+	int 		i = checkRoute();
 
-	getRoutes();
-
-	for (i = 0; i < (int)this->_config.location.size() && route_exist == false; i++)
-	{
-		if (_absoluteRoute == this->_config.location[i].path)
-		{
-			route_exist = true;
-			break ;
-		}
-		if (_request.getMethod() != "GET" || this->_config.location[i].path != "/" || _route != "")
-			continue ;
-		std::ifstream file(this->_config.location[i].root + _request.getRoute());
-		if (file.is_open() != 0)
-		{
-			file.close();
-			route_exist = true;
-			this->_route = _request.getRoute();
-			break ;
-		}
-	}
-
-	if (route_exist == false || i >= (int)this->_config.location.size())
+	if (this->_routeExist == false || i >= (int)this->_config.location.size())
 		setErrorPage(404);
 	if (_errorPage == 0)
 		methodBuild(i);
@@ -64,6 +41,33 @@ int	Response::generateResponse(void)
 	}
 	executeCGI();
 	return (0);
+}
+
+int	Response::checkRoute(void)
+{
+	int	i;
+	this->_routeExist = false;
+
+	getRoutes();
+	for (i = 0; i < (int)this->_config.location.size() && this->_routeExist == false; i++)
+	{
+		if (_absoluteRoute == this->_config.location[i].path)
+		{
+			this->_routeExist = true;
+			break ;
+		}
+		if (_request.getMethod() != "GET" || this->_config.location[i].path != "/" || _route != "")
+			continue ;
+		std::ifstream file(this->_config.location[i].root + _request.getRoute());
+		if (file.is_open() != 0)
+		{
+			file.close();
+			this->_routeExist = true;
+			this->_route = _request.getRoute();
+			break ;
+		}
+	}
+	return (i);
 }
 
 // "/uploads/index.html" -> "/uploads" "/index.html"
@@ -86,6 +90,7 @@ int	Response::methodBuild(int location_index)
 		_fullPath = this->_config.location[location_index].upload_path;
 	else
 		_fullPath = this->_config.location[location_index].root;
+
 	if (_request.getMethod() == "GET" && checkMethodRequest(location_index, GET) == 0)
 	{
 		if (_request.getRoute() == this->_config.location[location_index].path)
@@ -98,36 +103,44 @@ int	Response::methodBuild(int location_index)
 		file.close();
 	}
 	else if (_request.getMethod() == "POST" && checkMethodRequest(location_index, POST) == 0)
-	{
-		_fullPath += _request._fileName;
-		std::ifstream file(_fullPath);
-		if (file.is_open())
-		{
-			file.close();
-			return (setErrorPage(403));
-		}
-		std::ofstream new_file;
-		new_file.open(_fullPath, std::ios::out);
-		if (new_file.is_open())
-		{
-			new_file << _request._fileContent;
-			new_file.close();
-		}
-		else
-			return (setErrorPage(500));
-	}
+		return (buildPost());
 	else if (_request.getMethod() == "DELETE" && checkMethodRequest(location_index, DELETE) == 0)
-	{
-		_fullPath += _route;
-		std::ifstream file(_fullPath);
-		if (file.is_open() == 0)
-			return (setErrorPage(404));
-		file.close();
-		this->_config.exportEnv("REQUEST_ROUTE", _fullPath);
-	}
+		return (buildDelete());
 	else
 		setErrorPage(403);
 
+	return (0);
+}
+
+int	Response::buildPost(void)
+{
+	_fullPath += _request._fileName;
+	std::ifstream file(_fullPath);
+	if (file.is_open())
+	{
+		file.close();
+		return (setErrorPage(403));
+	}
+	std::ofstream new_file;
+	new_file.open(_fullPath, std::ios::out);
+	if (new_file.is_open())
+	{
+		new_file << _request._fileContent;
+		new_file.close();
+	}
+	else
+		return (setErrorPage(500));
+	return (0);
+}
+
+int	Response::buildDelete(void)
+{
+	_fullPath += _route;
+	std::ifstream file(_fullPath);
+	if (file.is_open() == 0)
+		return (setErrorPage(404));
+	file.close();
+	this->_config.exportEnv("REQUEST_ROUTE", _fullPath);
 	return (0);
 }
 
