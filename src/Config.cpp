@@ -294,7 +294,10 @@ void Config::saveLocation(std::vector<std::string> &words, std::size_t &location
 	else if (words[0] == "root")
 		this->location[locationIndex].root = words[1];
 	else if (words[0] == "index")
+	{
+		this->location[locationIndex].autoindex = false;
 		this->location[locationIndex].index = words[1];
+	}
 	else if (words[0] == "upload_path")
 		this->location[locationIndex].upload_path = words[1];
 	else if (words[0] == "cgi_extension")
