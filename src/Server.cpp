@@ -20,24 +20,14 @@ Server::Server(Config conf)
 	this->_socketAddress.sin_port = htons(this->_port);
 	this->_socketAddress.sin_addr.s_addr = inet_addr(this->_ip_address.c_str());
 }
+// ===== Destructor =====
 Server::~Server()
 {
 	close(this->_socket);
 	return ;
 }
 
-// ===== Methods =====
-int	Server::deleteClientSocket(int client_socket)
-{
-	std::vector<int>::iterator it = std::find(this->_clientSockets.begin(), this->_clientSockets.end(), client_socket);
-    if (it != this->_clientSockets.end())
-	{
-        std::copy(it + 1, this->_clientSockets.end(), it);
-        this->_clientSockets.pop_back();
-    }
-	return (0);
-}
-
+// Create a socket, associate it with a address and listen for incoming connections
 int		Server::startServer(void)
 {
 	this->_socket = socket(AF_INET, SOCK_STREAM, 0);
@@ -59,6 +49,19 @@ int		Server::startServer(void)
 	return (0);
 }
 
+// Delete a client socket
+int	Server::deleteClientSocket(int client_socket)
+{
+	std::vector<int>::iterator it = std::find(this->_clientSockets.begin(), this->_clientSockets.end(), client_socket);
+	if (it != this->_clientSockets.end())
+	{
+		std::copy(it + 1, this->_clientSockets.end(), it);
+		this->_clientSockets.pop_back();
+	}
+	return (0);
+}
+
+// Accept a incoming connection and save the socket
 int	Server::acceptConnection(void)
 {
 	int	new_socket;
@@ -72,6 +75,7 @@ int	Server::acceptConnection(void)
 	return (new_socket);
 }
 
+// Read a request and send a response
 int	Server::handleConnection(int client_socket)
 {
 	char	buffer[this->_config.client_max_body_size];
@@ -95,6 +99,7 @@ int	Server::handleConnection(int client_socket)
 	return (0);
 }
 
+// Send response to the client socket
 void Server::sendResponse(int client_socket)
 {
 	unsigned long bytesSent;

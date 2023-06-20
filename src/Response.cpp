@@ -8,6 +8,7 @@
 #include "web_server.hpp"
 #include "utils.hpp"
 
+// ===== Constructor =====
 Response::Response(const Config conf, Request const &request) : _request(request)
 {
 	_config = conf;
@@ -17,11 +18,13 @@ Response::Response(const Config conf, Request const &request) : _request(request
 	_errorPage = 0;
 	return ;
 }
+// ===== Destructor =====
 Response::~Response()
 {
 	return ;
 }
 
+// Check route, handle error pages, set environment variables and call CGI
 int	Response::generateResponse(void)
 {
 	int 		i = checkRoute();
@@ -43,6 +46,7 @@ int	Response::generateResponse(void)
 	return (0);
 }
 
+// Check if request path exists
 int	Response::checkRoute(void)
 {
 	int	i;
@@ -70,7 +74,7 @@ int	Response::checkRoute(void)
 	return (i);
 }
 
-// "/uploads/index.html" -> "/uploads" "/index.html"
+// Separe route: "/uploads/index.html" -> "/uploads" "/index.html"
 int	Response::getRoutes(void)
 {
 	size_t i = this->_request.getRoute().find('/', 1);
@@ -84,6 +88,7 @@ int	Response::getRoutes(void)
 	return (0);
 }
 
+// Manage request depending on the method
 int	Response::methodBuild(int location_index)
 {
 	if (this->_config.location[location_index].upload_enable)
@@ -112,6 +117,7 @@ int	Response::methodBuild(int location_index)
 	return (0);
 }
 
+// Check that the file does not exist and create it
 int	Response::buildPost(void)
 {
 	_fullPath += _request._fileName;
@@ -133,6 +139,7 @@ int	Response::buildPost(void)
 	return (0);
 }
 
+// Check that the file exists
 int	Response::buildDelete(void)
 {
 	_fullPath += _route;
@@ -144,6 +151,7 @@ int	Response::buildDelete(void)
 	return (0);
 }
 
+// Check if the method exists in a location
 int	Response::checkMethodRequest(int location_index, int method)
 {
 	for (int i = 0; i < (int)this->_config.location[location_index].method.size(); i++)
@@ -152,6 +160,7 @@ int	Response::checkMethodRequest(int location_index, int method)
 	return (1);
 }
 
+// Change REQUEST_METHOD variable to GET and look for the corresponding error page
 int	Response::setErrorPage(int error)
 {
 	int	i;
@@ -171,6 +180,7 @@ int	Response::setErrorPage(int error)
 	return (0);
 }
 
+// Execute the CGI program and save the response of the same
 int	Response::executeCGI(void)
 {
 	int		fd[2];

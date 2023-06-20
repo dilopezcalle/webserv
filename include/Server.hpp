@@ -43,6 +43,7 @@ public:
     };
 
 private:
+	// ===== Private methods =====
 	std::string buildResponse(void);
 	void sendResponse(int client_socket);
 };

@@ -1,7 +1,7 @@
 #include "Route.hpp"
 
 #include <string.h>
-
+// ===== Constructors =====
 Route::Route(Config conf)
 {
 	this->_server_list.push_back(Server(conf));
@@ -14,10 +14,14 @@ Route::Route(std::vector<Config> config_list)
 		this->_server_list.push_back(Server(config_list[i]));
 	for (int i = 0; i < (int)this->_server_list.size(); i++)
 		this->_server_list[i].startServer();
+	for (int i = 0; i < (int)this->_server_list.size(); i++)
+		this->_server_list[i]._config.printConf();
 	return ;
 }
+// ===== Destructor =====
 Route::~Route(){ return ; }
 
+// Initialize server sockets
 int	Route::startListen(void)
 {
 	int		j;
@@ -27,10 +31,11 @@ int	Route::startListen(void)
 		FD_SET(this->_server_list[j]._socket, &this->_currentSockets);
 
 	this->_maxSocket = this->_server_list[j - 1]._socket;
-	this->selectRequest();	
+	this->selectRequest();
 	return (0);
 }
 
+// Wait socket for read or write
 int	Route::selectRequest(void)
 {
 	fd_set	ready_sockets;
@@ -53,6 +58,7 @@ int	Route::selectRequest(void)
 	return (0);
 }
 
+// Select the corresponding server, then accept or handle the socket
 int	Route::redirectRequest(int socket_selected)
 {
 	for (int j = 0; j < (int)this->_server_list.size(); j++)

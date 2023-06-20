@@ -15,13 +15,17 @@ private:
 	int					_maxSocket;
 
 public:
+	// ===== Constructors =====
 	Route(Config conf);
 	Route(std::vector<Config> config_list);
+	// ===== Destructor =====
 	~Route();
 
+	// ===== Method =====
 	int	startListen(void);
 
 private:
+	// ===== Private methods =====
 	int	selectRequest(void);
 	int	redirectRequest(int socket_selected);
 };
