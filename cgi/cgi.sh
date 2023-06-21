@@ -6,7 +6,7 @@ replace_string() {
 	echo "${replaced_string//port_here/$CONFIG_PORT}"
 }
 
-# Se supone que esta comprobado que el archivo existe
+# Se supone que está comprobado que el archivo no existe
 if [ "$REQUEST_METHOD" == "GET" ]
 then
 	content=$(cat "$1")
@@ -21,6 +21,8 @@ fi
 # Ya esta comprobado que el archivo no existe
 if [ "$REQUEST_METHOD" == "POST" ]
 then
+	mkdir -p "$(dirname "$1")" && touch "$1"
+	echo "$REQUEST_FILECONTENT" > "$1"
 	content=$(cat "$1")
 	size=${#content}
 	echo "HTTP/1.1 $REQUEST_STATUS OK"

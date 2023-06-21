@@ -12,6 +12,22 @@
 
 class Request
 {
+	private:
+		std::string	_full_request;
+		std::string	_method;
+		std::string	_route;
+		std::string	_protocol;
+		std::string _host;
+		std::string _connection;
+		std::string _boundary; //POST
+		std::string _fileName; //POST
+		std::string _fileContent; //POST
+		/* int			_socket;
+
+		std::map<std::string, std::string>	header;
+
+		std::string	_body; */
+
 	public:
 		Request(std::string const &str);
 		~Request();
@@ -25,21 +41,6 @@ class Request
 		std::string getFilename(void) const;
 		std::string getFileContent(void) const;
 		void getInfo(std::string const &str);
-		std::string _fileName; //POST
-		std::string _fileContent; //POST
-	private:
-		std::string	_full_request;
-		std::string	_method;
-		std::string	_route;
-		std::string	_protocol;
-		std::string _host;
-		std::string _connection;
-		std::string _boundary; //POST
-		/* int			_socket;
-
-		std::map<std::string, std::string>	header;
-
-		std::string	_body; */
 };
 std::ostream &operator<<( std::ostream &ost, Request const &src );
 

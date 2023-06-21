@@ -24,12 +24,18 @@ Response::~Response()
 	return ;
 }
 
+// ===== Getters =====
+std::string	Response::_getFullResponse(void)
+{
+	return (this->_fullResponse);
+}
+
 // Check route, handle error pages, set environment variables and call CGI
 int	Response::generateResponse(void)
 {
 	int 		i = checkRoute();
 
-	if (this->_routeExist == false || i >= (int)this->_config.location.size())
+	if (this->_routeExist == false || i >= this->_config.getSizeLocation())
 		setErrorPage(404);
 	if (_errorPage == 0)
 		methodBuild(i);
@@ -37,9 +43,9 @@ int	Response::generateResponse(void)
 	{
 		this->_config.exportEnv("REQUEST_METHOD", _request.getMethod());
 		this->_config.exportEnv("REQUEST_STATUS", "200");
-		this->_config.exportEnv("CONFIG_HOST", this->_config.host);
+		this->_config.exportEnv("CONFIG_HOST", this->_config.getHost());
 		std::stringstream ss;
-    	ss << this->_config.port;
+    	ss << this->_config.getPort();
 		this->_config.exportEnv("CONFIG_PORT", ss.str());
 	}
 	executeCGI();
@@ -53,16 +59,16 @@ int	Response::checkRoute(void)
 	this->_routeExist = false;
 
 	getRoutes();
-	for (i = 0; i < (int)this->_config.location.size() && this->_routeExist == false; i++)
+	for (i = 0; i < this->_config.getSizeLocation() && this->_routeExist == false; i++)
 	{
-		if (_absoluteRoute == this->_config.location[i].path)
+		if (_absoluteRoute == this->_config.getLocation(i).path)
 		{
 			this->_routeExist = true;
 			break ;
 		}
-		if (_request.getMethod() != "GET" || this->_config.location[i].path != "/" || _route != "")
+		if (_request.getMethod() != "GET" || this->_config.getLocation(i).path != "/" || _route != "")
 			continue ;
-		std::ifstream file(this->_config.location[i].root + _request.getRoute());
+		std::ifstream file(this->_config.getLocation(i).root + _request.getRoute());
 		if (file.is_open() != 0)
 		{
 			file.close();
@@ -90,16 +96,16 @@ int	Response::getRoutes(void)
 
 // Manage request depending on the method
 int	Response::methodBuild(int location_index)
-{
-	if (this->_config.location[location_index].upload_enable)
-		_fullPath = this->_config.location[location_index].upload_path;
+{	
+	if (this->_config.getLocation(location_index).upload_enable)
+		_fullPath = this->_config.getLocation(location_index).upload_path;
 	else
-		_fullPath = this->_config.location[location_index].root;
+		_fullPath = this->_config.getLocation(location_index).root;
 
 	if (_request.getMethod() == "GET" && checkMethodRequest(location_index, GET) == 0)
 	{
-		if (_request.getRoute() == this->_config.location[location_index].path)
-			_fullPath += "/" + this->_config.location[location_index].index;
+		if (_request.getRoute() == this->_config.getLocation(location_index).path)
+			_fullPath += "/" + this->_config.getLocation(location_index).index;
 		else
 			_fullPath += "/." + _route;
 		std::ifstream file(_fullPath);
@@ -120,22 +126,14 @@ int	Response::methodBuild(int location_index)
 // Check that the file does not exist and create it
 int	Response::buildPost(void)
 {
-	_fullPath += _request._fileName;
+	_fullPath += _request.getFilename();
 	std::ifstream file(_fullPath);
 	if (file.is_open())
 	{
 		file.close();
 		return (setErrorPage(403));
 	}
-	std::ofstream new_file;
-	new_file.open(_fullPath, std::ios::out);
-	if (new_file.is_open())
-	{
-		new_file << _request._fileContent;
-		new_file.close();
-	}
-	else
-		return (setErrorPage(500));
+	this->_config.exportEnv("REQUEST_FILECONTENT", this->_request.getFileContent());
 	return (0);
 }
 
@@ -154,8 +152,8 @@ int	Response::buildDelete(void)
 // Check if the method exists in a location
 int	Response::checkMethodRequest(int location_index, int method)
 {
-	for (int i = 0; i < (int)this->_config.location[location_index].method.size(); i++)
-		if (this->_config.location[location_index].method[i] == method)
+	for (int i = 0; i < (int)this->_config.getLocation(location_index).method.size(); i++)
+		if (this->_config.getLocation(location_index).method[i] == method)
 			return (0);
 	return (1);
 }
@@ -168,9 +166,9 @@ int	Response::setErrorPage(int error)
 	this->_config.exportEnv("REQUEST_METHOD", "GET");
 	_errorPage = error;
 	for (i = 0; i < 3; i++)
-		if (this->_config.error_page[i].n_error == error)
+		if (this->_config.getErrorPage(i).n_error == error)
 		{
-			_fullPath = this->_config.error_page[i].path;
+			_fullPath = this->_config.getErrorPage(i).path;
 			std::stringstream ss;
 			ss << error;
 			this->_config.exportEnv("REQUEST_STATUS", ss.str());
