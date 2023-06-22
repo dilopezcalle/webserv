@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <sys/stat.h>
 
 #include "Response.hpp"
 #include "web_server.hpp"
@@ -126,15 +127,15 @@ int	Response::methodBuild(int location_index)
 // Check that the file does not exist and create it
 int	Response::buildPost(void)
 {
-	_fullPath += _request.getFilename();
+    mkdir(_fullPath.c_str(), 0777);
+	_fullPath += "/" + _request.getFilename();
 	std::ifstream file(_fullPath);
 	if (file.is_open())
 	{
 		file.close();
 		return (setErrorPage(403));
 	}
-	/* std::string content(this->_request._fileContent.begin(), this->_request._fileContent.end());
-	this->_config.exportEnv("REQUEST_FILECONTENT", content); */
+	this->_config.exportEnv("REQUEST_FILE", _fullPath);
 	std::ofstream new_file;
 	new_file.open(_fullPath, std::ios::out);
 	if (new_file.is_open())

@@ -19,27 +19,37 @@ then
 fi
 
 # Ya esta comprobado que el archivo no existe
-# if [ "$REQUEST_METHOD" == "POST" ]
-# then
-# 	mkdir -p "$(dirname "$1")" && touch "$1"
-# 	echo "$REQUEST_FILECONTENT" > "$1"
-# 	content=$(cat "$1")
-# 	size=${#content}
-# 	echo "HTTP/1.1 $REQUEST_STATUS OK"
-# 	echo "Content-Length: $size"
-# 	echo ""
-# 	echo "$content"
-# fi
+if [ "$REQUEST_METHOD" == "POST" ]; then
+    # Obtener la extensión del archivo
+    filename=$(basename "$REQUEST_FILE")
+    extension="${filename##*.}"
 
-if [ "$REQUEST_METHOD" == "POST" ]
-then
-	content=$(cat "$1")
-	size=${#content}
-	echo "HTTP/1.1 $REQUEST_STATUS OK"
-    echo "Content-Length: $size"
-	echo ""
-    echo "$content"
+    # Establecer el tipo de contenido en función de la extensión
+    case "$extension" in
+        jpg|jpeg)
+            content_type="image/jpeg"
+            ;;
+        png)
+            content_type="image/png"
+            ;;
+        gif)
+            content_type="image/gif"
+            ;;
+        # Agrega más extensiones y tipos de contenido según sea necesario
+
+        *)
+            content_type="application/octet-stream"
+            ;;
+    esac
+
+    content_length=$(wc -c < "$REQUEST_FILE")
+    echo "HTTP/1.1 $REQUEST_STATUS OK"
+    echo "Content-Type: $content_type"
+    echo "Content-Length: $content_length"
+    echo ""
+    cat "$REQUEST_FILE"
 fi
+
 
 if [ "$REQUEST_METHOD" == "DELETE" ]
 then
