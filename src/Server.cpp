@@ -102,13 +102,16 @@ int	Server::handleConnection(int client_socket)
 	char	buffer[this->_config.getClientMaxBodySize()];
 	
 	bzero(buffer, this->_config.getClientMaxBodySize());
-	if (read(client_socket, buffer, this->_config.getClientMaxBodySize()) < 0)
+	int bytesread = read(client_socket, buffer, this->_config.getClientMaxBodySize());
+	if (bytesread < 0)
 	{
 		throw serverException("Cannot read request");
 		return (1);
 	}
-
-	Request request(buffer);
+	std::vector<char> vecbuffer;
+	for (int i = 0; i < bytesread; i++)
+		vecbuffer.push_back(buffer[i]);
+	Request request(vecbuffer);
 	Response response(this->_config, request);
 
 	response.generateResponse();

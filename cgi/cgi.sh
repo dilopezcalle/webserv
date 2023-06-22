@@ -19,10 +19,20 @@ then
 fi
 
 # Ya esta comprobado que el archivo no existe
+# if [ "$REQUEST_METHOD" == "POST" ]
+# then
+# 	mkdir -p "$(dirname "$1")" && touch "$1"
+# 	echo "$REQUEST_FILECONTENT" > "$1"
+# 	content=$(cat "$1")
+# 	size=${#content}
+# 	echo "HTTP/1.1 $REQUEST_STATUS OK"
+# 	echo "Content-Length: $size"
+# 	echo ""
+# 	echo "$content"
+# fi
+
 if [ "$REQUEST_METHOD" == "POST" ]
 then
-	mkdir -p "$(dirname "$1")" && touch "$1"
-	echo "$REQUEST_FILECONTENT" > "$1"
 	content=$(cat "$1")
 	size=${#content}
 	echo "HTTP/1.1 $REQUEST_STATUS OK"

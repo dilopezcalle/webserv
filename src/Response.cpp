@@ -133,7 +133,19 @@ int	Response::buildPost(void)
 		file.close();
 		return (setErrorPage(403));
 	}
-	this->_config.exportEnv("REQUEST_FILECONTENT", this->_request.getFileContent());
+	/* std::string content(this->_request._fileContent.begin(), this->_request._fileContent.end());
+	this->_config.exportEnv("REQUEST_FILECONTENT", content); */
+	std::ofstream new_file;
+	new_file.open(_fullPath, std::ios::out);
+	if (new_file.is_open())
+	{
+		for (size_t i = 0; i < _request._fileContent.size(); i++)
+			new_file << _request._fileContent[i];
+		new_file.close();
+	}
+	else
+		return (setErrorPage(500));
+	
 	return (0);
 }
 
