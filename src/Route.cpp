@@ -77,7 +77,14 @@ int	Route::redirectRequest(int socket_selected)
 			{
 				if (socket_selected != this->_server_list[j].getClientSocket(k))
 					continue ;
-				this->_server_list[j].handleConnection(socket_selected);
+				try
+				{
+					this->_server_list[j].handleConnection(socket_selected);
+				}
+				catch (std::exception &e)
+				{
+					std::cerr << e.what() << std::endl;
+				}
 				this->_server_list[j].deleteClientSocket(socket_selected);
 				FD_CLR(socket_selected, &this->_currentSockets);
 			}
