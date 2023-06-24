@@ -69,11 +69,11 @@ int		Server::startServer(void)
 		throw serverException("Cannot create socket");
 		return (1);
 	}
-	if (bind(this->_socket, (sockaddr *)&this->_socketAddress, this->_socketAddress_len) < 0)
-	{
-		throw serverException("Cannot connect socket to address");
-		return (1);
-	}
+	std::cout << "Connecting server socket to"
+	<< "\nADDRESS: " << inet_ntoa(this->_socketAddress.sin_addr)
+	<< "\nPORT: " << ntohs(this->_socketAddress.sin_port) << std::endl;
+	while (bind(this->_socket, (sockaddr *)&this->_socketAddress, this->_socketAddress_len) < 0){}
+	std::cout << "===== Connection done! =====\n" << std::endl;
 	if (listen(this->_socket, 20) < 0)
 	{
 		throw serverException("Socket listen failed");
