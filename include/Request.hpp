@@ -29,6 +29,7 @@ class Request
 		std::string	_body; */
 
 	public:
+		Request();
 		Request(std::vector<char> buf);
 		~Request();
 		void setFullRequest(const std::vector<char> &src);
@@ -40,9 +41,10 @@ class Request
 		std::string getConnection(void) const;
 		std::string getFilename(void) const;
 		std::vector<char> getFileContent(void) const;
+		size_t getContentLength(void) const;
 		void getInfo(void);
 		std::vector<char> _fileContent;
+		bool operator==(const Request& other) const;
 };
 std::ostream &operator<<( std::ostream &ost, Request const &src );
-
 #endif

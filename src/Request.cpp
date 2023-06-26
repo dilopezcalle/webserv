@@ -1,5 +1,16 @@
 #include "Request.hpp"
 
+Request::Request(){
+    this->_method = "";
+    this->_route = "";
+    this->_protocol = "";
+    this->_host = "";
+    this->_connection = "";
+    this->_boundary = "";
+    this->_fileName = "";
+    this->_contentLength = 0;
+}
+
 Request::Request(std::vector<char> buf)
 {
     //std::cout << "[PRUEBAS_ANDONI] Generating request" << std::endl;
@@ -16,6 +27,18 @@ Request::Request(std::vector<char> buf)
     /* std::cout << "Request: " << std::endl;
     for (size_t i = 0; i < buf.size(); i++)
         std::cout << buf[i]; */
+}
+
+bool Request::operator==(const Request& other) const
+{
+    return _full_request == other._full_request &&
+           _method == other._method &&
+           _route == other._route &&
+           _protocol == other._protocol &&
+           _host == other._host &&
+           _connection == other._connection &&
+           _fileName == other._fileName &&
+           _fileContent == other._fileContent;
 }
 
 Request::~Request() {
@@ -56,6 +79,10 @@ std::string Request::getFilename(void) const {
 
 std::vector<char> Request::getFileContent(void) const {
     return this->_fileContent;
+}
+
+size_t Request::getContentLength(void) const{
+    return this->_contentLength;
 }
 
 void Request::getInfo(void)

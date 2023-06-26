@@ -99,19 +99,22 @@ int	Server::acceptConnection(void)
 // Read a request and send a response
 int	Server::handleConnection(int client_socket)
 {
-	char	buffer[this->_config.getClientMaxBodySize()];
-	
-	bzero(buffer, this->_config.getClientMaxBodySize());
-	int bytesread = read(client_socket, buffer, this->_config.getClientMaxBodySize());
+	size_t buffeSize = this->_config.getClientMaxBodySize() + 1024;
+	char	buffer[buffeSize];
+	Request request;
+	bzero(buffer, buffeSize);
+	int bytesread = read(client_socket, buffer, buffeSize);
 	if (bytesread < 0)
-	{
 		throw serverException("Cannot read request");
-		return (1);
-	}
 	std::vector<char> vecbuffer;
 	for (int i = 0; i < bytesread; i++)
 		vecbuffer.push_back(buffer[i]);
-	Request request(vecbuffer);
+	Request tmp(vecbuffer);
+	if ((int)tmp.getContentLength() <= this->_config.getClientMaxBodySize())
+		request = tmp;
+	else
+		std::cout << "Error: Body is too big! Using an empty request" << std::endl;
+	//std::cout << request;
 	Response response(this->_config, request);
 
 	response.generateResponse();
