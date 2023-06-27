@@ -56,9 +56,14 @@ int	Response::generateResponse(void)
 // Check if request path exists
 int	Response::checkRoute(void)
 {
-	int	i;
+	int	i = 0;
 	this->_routeExist = false;
 
+	if (_request.getHost() == "")
+	{
+		setErrorPage(403);
+		return (i);
+	}
 	getRoutes();
 	for (i = 0; i < this->_config.getSizeLocation() && this->_routeExist == false; i++)
 	{
@@ -176,6 +181,8 @@ int	Response::setErrorPage(int error)
 {
 	int	i;
 
+	if (_errorPage != 0)
+		return (0);
 	this->_config.exportEnv("REQUEST_METHOD", "GET");
 	_errorPage = error;
 	for (i = 0; i < 3; i++)

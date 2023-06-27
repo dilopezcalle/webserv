@@ -114,11 +114,13 @@ int	Server::handleConnection(int client_socket)
 		request = tmp;
 	else
 		std::cout << "Error: Body is too big! Using an empty request" << std::endl;
-	//std::cout << request;
+	
 	Response response(this->_config, request);
 
 	response.generateResponse();
 	_serverResponse = response._getFullResponse();
+
+	std::cout << "RESPONSE:\n" << _serverResponse << std::endl;
 
 	sendResponse(client_socket);
 	close(client_socket);
