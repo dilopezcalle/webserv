@@ -99,29 +99,59 @@ int	Server::acceptConnection(void)
 // Read a request and send a response
 int	Server::handleConnection(int client_socket)
 {
-	size_t buffeSize = this->_config.getClientMaxBodySize() + 1024;
+	size_t buffeSize = 1;
 	char	buffer[buffeSize];
-	Request request;
-	bzero(buffer, buffeSize);
-	int bytesread = read(client_socket, buffer, buffeSize);
-	if (bytesread < 0)
-		throw serverException("Cannot read request");
 	std::vector<char> vecbuffer;
-	for (int i = 0; i < bytesread; i++)
-		vecbuffer.push_back(buffer[i]);
-	Request tmp(vecbuffer);
-	if ((int)tmp.getContentLength() <= this->_config.getClientMaxBodySize())
-		request = tmp;
-	else
-		std::cout << "Error: Body is too big! Using an empty request" << std::endl;
-	
-	Response response(this->_config, request);
+	std::string line = "";
+	Request request;
+	int bytesread = 1;
+	// std::cout << "[REQUEST] Reading request: " << std::endl;
+	while (bytesread > 0 && line != "\r\n")
+	{
+		bzero(buffer, buffeSize);
+		bytesread = read(client_socket, buffer, buffeSize);
+		if (bytesread < 0) {
+			throw serverException("Cannot read request");
+			break;
+		}
+		for (int i = 0; i < bytesread; i++) {
+			if (buffer[i] == '\n') {
+				if (line == "\r") {
+					Request tmp(vecbuffer);
+					
+					/* // ====TODO ESTO SOBRA CUANDO FUNCIONE!====
+					std::cout << "[REQUEST] Printing header buffer:" << std::endl;
+					for (size_t i = 0; i < vecbuffer.size(); i++)
+						std::cout << vecbuffer[i]; */
 
+					vecbuffer.clear();
+					if (tmp.getContentLength())
+						tmp.setFileContent(client_socket);
+					if ((int)tmp.getContentLength() <= this->_config.getClientMaxBodySize())
+						request = tmp;
+					else
+						std::cout << "Error: Body is too big! Using an empty request" << std::endl;
+					
+
+					/* // ====TODO ESTO SOBRA CUANDO FUNCIONE!====
+					std::cout << "[REQUEST] Hasta aqui: " << std::endl \
+						<< request << std::endl << "[REQUEST] Hasta aqui" << std::endl; */
+					
+					bytesread = 0;
+				} else {
+				vecbuffer.insert(vecbuffer.end(), line.begin(), line.end());
+				vecbuffer.push_back('\n');
+				line.clear();
+				}
+			} else {
+				line.push_back(buffer[i]);
+			}
+		}
+	}
+	// std::cout << "Bucle terminado!" << std::endl;
+	Response response(this->_config, request);
 	response.generateResponse();
 	_serverResponse = response._getFullResponse();
-
-	std::cout << "RESPONSE:\n" << _serverResponse << std::endl;
-
 	sendResponse(client_socket);
 	close(client_socket);
 	printMessage("Closing connection");

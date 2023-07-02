@@ -205,6 +205,8 @@ int	Response::executeCGI(void)
 	int		pid;
 	char	*cgi_args[] = {(char *)"./cgi/cgi.sh", (char *)_fullPath.c_str(), NULL};
 
+	//this->_config.printEnv();
+
 	if (pipe(fd) == -1)
 		return (1);
 	pid = fork();
@@ -217,14 +219,20 @@ int	Response::executeCGI(void)
 		dup2(fd[1], 1);
 		close(fd[1]);
 		execve(*cgi_args, cgi_args, env);
+		std::cerr << "Error: CGI failed." << std::endl;
+		exit(0);
 	}
 	else
 	{
 		close(fd[1]);
+		std::cout << "Esperando al hijo, path: " << (char *)_fullPath.c_str() << std::endl;
 		waitpid(pid, NULL, 0);
+		std::cout << "El hijo ha terminado" << std::endl;
 		int fd_response = dup(fd[0]);
 		close(fd[0]);
+		//std::cout << "readFileDescriptor() ha empezado" << std::endl;
 		_fullResponse = readFileDescriptor(fd_response);
+		//std::cout << "readFileDescriptor() ha terminado" << std::endl;
 	}
 	return (0);
 }

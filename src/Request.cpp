@@ -1,4 +1,5 @@
 #include "Request.hpp"
+#include <string.h>
 
 Request::Request(){
     this->_method = "";
@@ -133,7 +134,7 @@ void Request::getInfo(void)
                 this->_boundary = line.substr(pos + 9);
                 //std::cout << "-> Boundary: " << this->_boundary << std::endl;
             }
-            pos = line.find("filename=");
+            /* pos = line.find("filename=");
             if (pos != std::string::npos)
             {
                 // Saving filename
@@ -144,12 +145,60 @@ void Request::getInfo(void)
                 // Saving filecontent
                 std::string::size_type bodyStart = str.find(lines[i + 1]) + lines[i + 1].length() + 3;
                 std::string::size_type bodyEnd = this->_full_request.size() - this->_boundary.size() - 7;
+                std::string str(this->_full_request.begin() + bodyEnd, this->_full_request.end());
+                //std::cout << "EY--------------->>>>> " << str << std::endl;
                 for(size_t i = 0; (bodyStart + i) < bodyEnd; i++)
                     this->_fileContent.push_back(this->_full_request[i + bodyStart]);
                 // Printing the info we just get
                 //std::cout << *this;
-            }
+            } */
         }
+    }
+}
+
+void Request::setFileContent(int clilent_socket)
+{
+    int bytesToRead = 1024;
+    std::vector<char> vecBody;
+    int totalRead = 0;
+    char buffer[bytesToRead];
+    std::cout << "[REQUEST] Empieza setFileContent()" << std::endl;
+    int readNum = this->_contentLength / bytesToRead;
+    if (this->_contentLength % bytesToRead)
+        readNum++;
+    std::cout << "[REQUEST] Content length = " << this->_contentLength << std::endl;
+    for(int i = 0; i < readNum; i++)
+    {
+        bzero(buffer, bytesToRead);
+        int bytesRead = read(clilent_socket, buffer, bytesToRead);
+        if (bytesRead > 0)
+        {
+            std::cout << "[REQUEST] Bytes read = " << bytesRead << std::endl;
+            for (int i = 0; i < bytesRead; i++)
+                vecBody.push_back(buffer[i]);
+            totalRead += bytesRead;
+        }
+    }
+    std::cout << "[REQUEST] Total read = " << totalRead << std::endl;
+    std::string strBody(vecBody.begin(), vecBody.end());
+    std::string::size_type pos = strBody.find("filename=") + 9;
+
+    if (pos != std::string::npos)
+    {
+        // Saving filename
+        std::string st = strBody.substr(pos, strBody.find("\n", pos) - pos);
+        st.erase(std::remove(st.begin(), st.end(), '\"'), st.end());
+        st.erase(std::remove(st.begin(), st.end(), '\r'), st.end());
+        this->_fileName = st;
+
+        // Saving filecontent
+        std::string::size_type bodyStart = strBody.find("\r\n\r\n", pos) + 4;
+        std::string::size_type bodyEnd = strBody.size() - this->_boundary.size() - 5;
+        std::string str(vecBody.begin() + bodyEnd, vecBody.end());
+        for(size_t i = 0; (bodyStart + i) < bodyEnd; i++)
+            this->_fileContent.push_back(vecBody[i + bodyStart]);
+        std::cout << *this << std::endl;
+        std::cout << "[PRUEBAS] BOUNDARY DE CIERRE -> " << str << std::endl;
     }
 }
 
@@ -160,9 +209,10 @@ std::ostream & operator<<(std::ostream &ost, const Request &src)
         << "-> PROTOCOL: " << src.getProtocol() << std::endl \
         << "-> CONNECTION: " << src.getConnection() << std::endl \
         << "-> HOST: " << src.getHost() << std::endl \
+        << "-> CONTENT LENGHT: " << src.getContentLength() << std::endl \
         << "-> FILENAME: " << src.getFilename() << std::endl;
-    ost << "-> FILECONTENT: ";
+    /* ost << "-> FILECONTENT: ";
     for (size_t i = 0; i < src._fileContent.size(); i++)
-        ost << src._fileContent[i];
+        ost << src._fileContent[i]; */
     return ost;
 }
