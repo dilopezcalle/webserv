@@ -117,6 +117,13 @@ int	Response::methodBuild(int location_index)
 		std::ifstream file(_fullPath);
 		if (!file.is_open())
 			return (setErrorPage(404));
+		struct stat fileInfo;
+		if (stat(_fullPath.c_str(), &fileInfo) != 0 || fileInfo.st_size > 5000000)
+		{
+			std::cout << "size: " << fileInfo.st_size << std::endl;
+			return (setErrorPage(403));
+		}
+		std::cout << "size: " << fileInfo.st_size << std::endl;
 		file.close();
 	}
 	else if (_request.getMethod() == "POST" && checkMethodRequest(location_index, POST) == 0)
