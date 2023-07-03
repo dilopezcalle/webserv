@@ -48,6 +48,7 @@ int	Response::generateResponse(void)
 		std::stringstream ss;
     	ss << this->_config.getPort();
 		this->_config.exportEnv("CONFIG_PORT", ss.str());
+		this->_config.exportEnv("CONTENT_TYPE", _request.getContentType());
 	}
 	executeCGI();
 	return (0);
@@ -120,10 +121,10 @@ int	Response::methodBuild(int location_index)
 		struct stat fileInfo;
 		if (stat(_fullPath.c_str(), &fileInfo) != 0 || fileInfo.st_size > 5000000)
 		{
-			std::cout << "size: " << fileInfo.st_size << std::endl;
+			//std::cout << "size: " << fileInfo.st_size << std::endl;
 			return (setErrorPage(403));
 		}
-		std::cout << "size: " << fileInfo.st_size << std::endl;
+		//std::cout << "size: " << fileInfo.st_size << std::endl;
 		file.close();
 	}
 	else if (_request.getMethod() == "POST" && checkMethodRequest(location_index, POST) == 0)
@@ -232,9 +233,7 @@ int	Response::executeCGI(void)
 	else
 	{
 		close(fd[1]);
-		std::cout << "Esperando al hijo, path: " << (char *)_fullPath.c_str() << std::endl;
 		waitpid(pid, NULL, 0);
-		std::cout << "El hijo ha terminado" << std::endl;
 		int fd_response = dup(fd[0]);
 		close(fd[0]);
 		//std::cout << "readFileDescriptor() ha empezado" << std::endl;

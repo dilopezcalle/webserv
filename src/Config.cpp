@@ -113,6 +113,7 @@ std::string	Config::getHost(void)
 {
 	return (this->host);
 }
+
 Config::t_location	Config::getLocation(int index)
 {
 	if (index < (int)this->location.size())
@@ -120,6 +121,7 @@ Config::t_location	Config::getLocation(int index)
 	t_location	empty;
 	return (empty);
 }
+
 int	Config::getPort(void)
 {
 	return (this->port);
@@ -128,18 +130,22 @@ int	Config::getClientMaxBodySize(void)
 {
 	return (this->client_max_body_size);
 }
+
 int	Config::getSizeLocation(void)
 {
 	return ((int)this->location.size());
 }
+
 size_t	Config::getSizeServerName(void)
 {
 	return (this->server_name.size());
 }
+
 std::vector<Config::t_error_page>	Config::getErrorPages(void)
 {
 	return (this->error_page);
 }
+
 std::vector<Config::t_location>		Config::getLocations(void)
 {
 	return (this->location);
