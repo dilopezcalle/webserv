@@ -117,7 +117,15 @@ int	Response::methodBuild(int location_index)
 			_fullPath += "/." + _route;
 		std::ifstream file(_fullPath);
 		if (!file.is_open())
-			return (setErrorPage(404));
+		{
+			if (!this->_config.getDirList() || (this->_config.getDirList() && !checkDir(_fullPath)))
+			{
+				std::cout << "dirlist: " << this->_config.getDirList()
+					<< "\n checkdir: " << checkDir(_fullPath) << std::endl
+					<< "\n dir: " << _fullPath << std::endl;
+				return (setErrorPage(404));
+			}
+		}
 		struct stat fileInfo;
 		if (stat(_fullPath.c_str(), &fileInfo) != 0 || fileInfo.st_size > 5000000)
 		{

@@ -1,5 +1,6 @@
 #include <cstring>
 #include <unistd.h>
+#include <dirent.h>
 
 #include "utils.hpp"
 #include "web_server.hpp"
@@ -48,4 +49,15 @@ std::string	readFileDescriptor(int fd)
     }
 
     return (ss.str());
+}
+
+bool checkDir(std::string const &path)
+{
+	DIR *dir = opendir(path.c_str());
+
+	if (!dir)
+		return false;
+	else
+		closedir(dir);
+	return true;
 }

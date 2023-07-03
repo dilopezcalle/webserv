@@ -44,6 +44,7 @@ class Config
 		int							port;
 		int							client_max_body_size;
 		std::string					conf_body;
+		bool						dirList;
 
 	public:
 		// Constructor
@@ -63,6 +64,7 @@ class Config
 		size_t			getSizeServerName(void);
 		std::vector<t_error_page>	getErrorPages(void);
 		std::vector<t_location>		getLocations(void);
+		bool			getDirList(void) const;
 
 		Config	&operator=(const Config &src);
 

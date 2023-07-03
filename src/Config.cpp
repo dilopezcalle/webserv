@@ -33,6 +33,7 @@ Config::Config()
 	this->host = "127.0.0.1";
 	this->server_name.push_back("localhost");
 	this->client_max_body_size = 500000;
+	this->dirList = false;
 	this->error_page.push_back(page1);
 	this->error_page.push_back(page2);
 	this->error_page.push_back(page3);
@@ -48,6 +49,7 @@ Config	&Config::operator=(const Config &src)
 	this->host = src.host;
 	this->port = src.port;
 	this->client_max_body_size = src.client_max_body_size;
+	this->dirList = src.dirList;
 
 	{
 		// server_name vector
@@ -91,6 +93,7 @@ Config::Config(std::string msg)
 	//Sobreescribir host en fillFields
 	this->host = "";
 	this->client_max_body_size = 0;
+	this->dirList = false;
 }
 
 // Destructor
@@ -112,6 +115,11 @@ Config::t_error_page	Config::getErrorPage(int index)
 std::string	Config::getHost(void)
 {
 	return (this->host);
+}
+
+bool Config::getDirList(void) const
+{
+	return (this->dirList);
 }
 
 Config::t_location	Config::getLocation(int index)
@@ -235,6 +243,13 @@ void Config::fillFields(const std::string &src)
 			saveErrorPage(words);
 		else if (words[0] == "client_max_body_size")
 			saveMaxSize(words);
+		else if (words[0] == "dirlist")
+		{
+			if (words[1] == "on" || words[1] == "ON")
+				this->dirList = true;
+			if (words[1] == "off" || words[1] == "OFF")
+				this->dirList = false;
+		}
 		else if (words[0] == "location" || inLocation)
 		{
 			if (words.size() > 3)
@@ -446,7 +461,9 @@ void Config::printConf(void) const
 	std::cout << "===== PRINTING CONF PARAMETERS =====" << std::endl;
 	std::cout << "host: " << this->host << std::endl
 			  << "port: " << this->port << std::endl
-			  << "client_max_body_size: " << this->client_max_body_size << std::endl;
+			  << "client_max_body_size: " << this->client_max_body_size << std::endl
+			  << "dirlist: " << this->dirList << std::endl;
+	
 	std::cout << "server_names: \n";
 	for (size_t i = 0; i < this->server_name.size(); i++)
 		std::cout << "[" << i << "]"<< server_name[i] << std::endl;
