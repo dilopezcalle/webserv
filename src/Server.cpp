@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <sstream>
 #include <fstream>
+#include <fcntl.h>
 
 #include "Server.hpp"
 #include "utils.hpp"
@@ -63,12 +64,18 @@ int	Server::deleteClientSocket(int client_socket)
 // Create a socket, associate it with a address and listen for incoming connections
 int		Server::startServer(void)
 {
+	const char reuse = 1;
+
 	this->_socket = socket(AF_INET, SOCK_STREAM, 0);
 	if (this->_socket < 0)
 	{
 		throw serverException("Cannot create socket");
 		return (1);
 	}
+	if (setsockopt(this->_socket, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(int)) < 0)
+		throw (std::runtime_error("SO_REUSEADDR"));
+	fcntl(this->_socket, F_SETFL, O_NONBLOCK);
+
 	std::cout << "Connecting server socket to"
 	<< "\nADDRESS: " << inet_ntoa(this->_socketAddress.sin_addr)
 	<< "\nPORT: " << ntohs(this->_socketAddress.sin_port) << std::endl;
