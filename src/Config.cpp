@@ -258,7 +258,7 @@ void Config::fillFields(const std::string &src)
 			{
 				// Comprobamos que se cierren los corchetes correctamente
 				for (std::size_t j = i + 1; lines[j].find("}") == std::string::npos; j++)
-					if (j == lines.size() - 1 || lines[j].find("location") != std::string::npos)
+					if (j == lines.size() - 1 || lines[j].find("location") != std::string::npos || lines[j].find("server") != std::string::npos)
 						throw std::runtime_error("Error: location {} not closed");
 				// Creamos un location y lo pusheamos al vector
 				t_location tmp;
@@ -281,7 +281,8 @@ void Config::fillFields(const std::string &src)
 			}
 		}
 		else
-			throw std::runtime_error("Error: unknown field parameter '" + words[0] + "'");
+			if (words[0] != "}")
+				throw std::runtime_error("Error: unknown field parameter '" + words[0] + "'");
 	}
 }
 
@@ -403,6 +404,9 @@ void Config::saveLocation(std::vector<std::string> &words, std::size_t &location
 		if (words[1] == "off" || words[1] == "OFF")
 			this->location[locationIndex].upload_enable = false;
 	}
+	else
+		if (words[0] != "}")
+			throw std::runtime_error("Error: unknown field parameter '" + words[0] + "'");
 }
 
 void Config::saveServerName(std::vector<std::string> &words)
