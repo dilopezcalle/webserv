@@ -84,6 +84,16 @@ void testLocation(std::vector<Config::t_location> locations)
         }
         else if (locations[i].upload_enable == false)
             throw std::runtime_error("Error: missing index");
+        // If there is a redir url, GET must be in location
+        if(locations[i].redir_url != "")
+        {
+            bool isGet = false;
+            for(std::vector<int>::iterator it = locations[i].method.begin(); it != locations[i].method.end(); it++)
+                if (*it == GET)
+                    isGet = true;
+            if (!isGet)
+                throw std::runtime_error("Error: redirection url without GET in location");
+        }
     }
     if (root != 1)
 		throw std::runtime_error("Error: you need one and only one root '/' location.");

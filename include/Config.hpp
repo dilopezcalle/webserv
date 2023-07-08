@@ -34,6 +34,7 @@ class Config
 			std::string			cgi_path;
 			bool				autoindex;
 			bool				upload_enable;
+			std::string			redir_url;
 		}				t_location;
 
 	private:

@@ -359,6 +359,7 @@ void Config::initLocation(Config::t_location &src)
     src.cgi_path = "";
     src.autoindex = true;
     src.upload_enable = false;
+	src.redir_url = "";
 }
 
 void Config::saveLocation(std::vector<std::string> &words, std::size_t &locationIndex)
@@ -404,6 +405,8 @@ void Config::saveLocation(std::vector<std::string> &words, std::size_t &location
 		if (words[1] == "off" || words[1] == "OFF")
 			this->location[locationIndex].upload_enable = false;
 	}
+	else if (words[0] == "redir_url")
+		this->location[locationIndex].redir_url = words[1];
 	else
 		if (words[0] != "}")
 			throw std::runtime_error("Error: unknown field parameter '" + words[0] + "'");
@@ -483,7 +486,8 @@ void Config::printConf(void) const
 		<< "-> upload_enable: " << this->location[i].upload_enable << std::endl \
 		<< "-> cgi_extension: " << this->location[i].cgi_extension << std::endl \
 		<< "-> cgi_path: " << this->location[i].cgi_path << std::endl \
-		<< "-> autoindex: " << this->location[i].autoindex << std::endl;
+		<< "-> autoindex: " << this->location[i].autoindex << std::endl\
+		<< "-> redir_url: " << this->location[i].redir_url << std::endl;
 	}
 	for (size_t i = 0; i < this->error_page.size(); i++)
 	{
