@@ -84,15 +84,21 @@ void testLocation(std::vector<Config::t_location> locations)
         }
         else if (locations[i].upload_enable == false)
             throw std::runtime_error("Error: missing index");
-        // If there is a redir url, GET must be in location
         if(locations[i].redir_url != "")
         {
+            // If there is a redir url, GET must be in location
             bool isGet = false;
             for(std::vector<int>::iterator it = locations[i].method.begin(); it != locations[i].method.end(); it++)
                 if (*it == GET)
                     isGet = true;
             if (!isGet)
                 throw std::runtime_error("Error: redirection url without GET in location");
+            // If there is a redir url it must start by http or https
+            std::string httpPrefix = "http://";
+            std::string httpsPrefix = "https://";
+            if (!(locations[i].redir_url.substr(0, httpPrefix.size()) == httpPrefix || \
+                locations[i].redir_url.substr(0, httpsPrefix.size()) == httpsPrefix))
+                throw std::runtime_error("Error: redirection url must include 'http://' or 'https://' prefix.");
         }
     }
     if (root != 1)
