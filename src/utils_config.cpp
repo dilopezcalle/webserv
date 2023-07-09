@@ -28,6 +28,31 @@ std::vector<std::string> extractServerBlocks(const std::string &configContent)
     std::vector<std::string> serverBlocks;
 
     std::size_t pos = 0;
+
+    while (pos != std::string::npos) {
+        std::size_t start = configContent.find("server {", pos);
+        std::size_t next = configContent.find("server {", start + 9);
+        if (next == std::string::npos)
+            next = configContent.size();
+        std::size_t end = configContent.rfind("}", next) + 1;
+        std::cout << "Start = " << start << ", next = " << next << " and end = " << end << std::endl;
+        if (start != std::string::npos && end != std::string::npos && start < end)
+        {
+            serverBlocks.push_back(configContent.substr(start, end - start));
+            pos = end;
+        } else {
+            pos = std::string::npos;
+        }
+    }
+
+    return serverBlocks;
+}
+
+/* std::vector<std::string> extractServerBlocks(const std::string &configContent)
+{
+    std::vector<std::string> serverBlocks;
+
+    std::size_t pos = 0;
     std::size_t serverStart = 0;
     int braceCount = 0;
     int locationBraceCount = 0;
@@ -72,7 +97,7 @@ std::vector<std::string> extractServerBlocks(const std::string &configContent)
         }
     }
     return serverBlocks;
-}
+} */
 
 bool isValidIPAddress(const std::string &ipAddress)
 {
