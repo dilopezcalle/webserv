@@ -35,7 +35,6 @@ std::vector<std::string> extractServerBlocks(const std::string &configContent)
         if (next == std::string::npos)
             next = configContent.size();
         std::size_t end = configContent.rfind("}", next) + 1;
-        std::cout << "Start = " << start << ", next = " << next << " and end = " << end << std::endl;
         if (start != std::string::npos && end != std::string::npos && start < end)
         {
             serverBlocks.push_back(configContent.substr(start, end - start));
