@@ -10,7 +10,7 @@ replace_string() {
 if [ "$REQUEST_METHOD" == "GET" ]
 then
     if [ -n "$REQUEST_REDIR" ]; then
-        echo "HTTP/1.1 301 Moved Permanently"
+        echo "HTTP/1.1 302 Found"
         echo "Location: $REQUEST_REDIR"
     # Verificar si el path es un directorio
     elif [ -d "$1" ]; then
