@@ -65,6 +65,7 @@ int	Response::checkRoute(void)
 		setErrorPage(403);
 		return (i);
 	}
+
 	getRoutes();
 	for (i = 0; i < this->_config.getSizeLocation() && this->_routeExist == false; i++)
 	{
@@ -103,7 +104,7 @@ int	Response::getRoutes(void)
 
 // Manage request depending on the method
 int	Response::methodBuild(int location_index)
-{	
+{
 	if (this->_config.getLocation(location_index).upload_enable)
 		_fullPath = this->_config.getLocation(location_index).upload_path;
 	else
@@ -111,6 +112,13 @@ int	Response::methodBuild(int location_index)
 
 	if (_request.getMethod() == "GET" && checkMethodRequest(location_index, GET) == 0)
 	{
+		if (this->_config.getLocation(location_index).redir_url != "")
+		{
+			std::cout << "entra" << std::endl;
+
+			this->_config.exportEnv("REQUEST_REDIR", this->_config.getLocation(location_index).redir_url);
+			return (0);
+		}
 		if (_request.getRoute() == this->_config.getLocation(location_index).path)
 			_fullPath += "/" + this->_config.getLocation(location_index).index;
 		else
@@ -128,11 +136,7 @@ int	Response::methodBuild(int location_index)
 		}
 		struct stat fileInfo;
 		if (stat(_fullPath.c_str(), &fileInfo) != 0 || fileInfo.st_size > 5000000)
-		{
-			//std::cout << "size: " << fileInfo.st_size << std::endl;
 			return (setErrorPage(403));
-		}
-		//std::cout << "size: " << fileInfo.st_size << std::endl;
 		file.close();
 	}
 	else if (_request.getMethod() == "POST" && checkMethodRequest(location_index, POST) == 0)

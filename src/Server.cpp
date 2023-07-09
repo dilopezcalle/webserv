@@ -20,6 +20,7 @@ Server::Server(Config conf)
 	this->_socketAddress.sin_family = AF_INET;
 	this->_socketAddress.sin_port = htons(this->_port);
 	this->_socketAddress.sin_addr.s_addr = inet_addr(this->_ip_address.c_str());
+	_config.printConf();
 }
 // ===== Destructor =====
 Server::~Server()

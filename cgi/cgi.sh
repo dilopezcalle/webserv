@@ -9,8 +9,11 @@ replace_string() {
 # Se supone que está comprobado que el archivo no existe
 if [ "$REQUEST_METHOD" == "GET" ]
 then
+    if [ -n "$REQUEST_REDIR" ]; then
+        echo "HTTP/1.1 301 Moved Permanently"
+        echo "Location: $REQUEST_REDIR"
     # Verificar si el path es un directorio
-    if [ -d "$1" ]; then
+    elif [ -d "$1" ]; then
         # Generar el listado de directorios y archivos en un HTML
         echo "HTTP/1.1 $REQUEST_STATUS OK"
         echo "Content-Type: text/html"
