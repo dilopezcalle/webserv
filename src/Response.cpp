@@ -114,8 +114,6 @@ int	Response::methodBuild(int location_index)
 	{
 		if (this->_config.getLocation(location_index).redir_url != "")
 		{
-			std::cout << "entra" << std::endl;
-
 			this->_config.exportEnv("REQUEST_REDIR", this->_config.getLocation(location_index).redir_url);
 			return (0);
 		}
