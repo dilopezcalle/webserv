@@ -122,10 +122,11 @@ int	Response::methodBuild(int location_index)
 		else
 			_fullPath += "/." + _route;
 		std::ifstream file(_fullPath);
-		if (!file.is_open())
+		if (!file.is_open() || checkDir(_fullPath) == true)
 		{
-			if (!this->_config.getDirList() || (this->_config.getDirList() && !checkDir(_fullPath)))
+			if (this->_config.getDirList() == false || (this->_config.getDirList() == true && checkDir(_fullPath) == false))
 			{
+				
 				std::cout << "dirlist: " << this->_config.getDirList()
 					<< "\n checkdir: " << checkDir(_fullPath) << std::endl
 					<< "\n dir: " << _fullPath << std::endl;

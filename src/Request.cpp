@@ -93,6 +93,7 @@ void Request::getInfo(void)
     std::string str(this->_full_request.begin(), this->_full_request.end());
     std::vector<std::string> lines;
     std::vector<std::string> words;
+    std::cout << str << std::endl << std::endl;
     std::stringstream ss(str);
     std::string line;
     while (std::getline(ss, line))
@@ -171,6 +172,7 @@ void Request::setFileContent(int clilent_socket)
     {
         bzero(buffer, bytesToRead);
         int bytesRead = read(clilent_socket, buffer, bytesToRead);
+        std::cout << buffer << std::endl;
         if (bytesRead > 0)
         {
             for (int i = 0; i < bytesRead; i++)

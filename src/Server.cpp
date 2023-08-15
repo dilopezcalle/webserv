@@ -143,6 +143,7 @@ int	Server::handleConnection(int client_socket)
 			}
 		}
 	}
+	std::cout << request.getFullRequest() << std::endl;
 	Response response(this->_config, request);
 	response.generateResponse();
 	_serverResponse = response._getFullResponse();
