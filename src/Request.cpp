@@ -93,7 +93,6 @@ void Request::getInfo(void)
     std::string str(this->_full_request.begin(), this->_full_request.end());
     std::vector<std::string> lines;
     std::vector<std::string> words;
-    std::cout << str << std::endl << std::endl;
     std::stringstream ss(str);
     std::string line;
     while (std::getline(ss, line))
@@ -172,7 +171,6 @@ void Request::setFileContent(int clilent_socket)
     {
         bzero(buffer, bytesToRead);
         int bytesRead = read(clilent_socket, buffer, bytesToRead);
-        std::cout << buffer << std::endl;
         if (bytesRead > 0)
         {
             for (int i = 0; i < bytesRead; i++)
@@ -180,31 +178,56 @@ void Request::setFileContent(int clilent_socket)
             totalRead += bytesRead;
         }
     }
+    std::string st = "";
     std::string strBody(vecBody.begin(), vecBody.end());
-    std::string::size_type pos = strBody.find("filename=") + 9;
+    std::string strFullReq(this->_full_request.begin(), this->_full_request.end());
+    std::string aux = strBody;
+
+    // Saving filename
+    std::string::size_type pos = aux.find("filename=");
+    if (pos == std::string::npos)
+    {
+        aux = strFullReq;
+        pos = aux.find("filename=");
+    }
     if (pos != std::string::npos)
     {
-        // Saving filename
-        std::string st = strBody.substr(pos, strBody.find("\n", pos) - pos);
+        pos = pos + 9;
+        st = aux.substr(pos, aux.find("\n", pos) - pos);
         st.erase(std::remove(st.begin(), st.end(), '\"'), st.end());
         st.erase(std::remove(st.begin(), st.end(), '\r'), st.end());
         this->_fileName = st;
+    }
+    aux = strBody;
 
-        // Saving content type
-        std::string::size_type pos2 = strBody.find("Content-Type: ") + 14;
-        if (pos2 != std::string::npos)
-        {
-            st = strBody.substr(pos2, strBody.find("\n", pos2) - pos2);
-            st.erase(std::remove(st.begin(), st.end(), '\r'), st.end());
-            this->_contentType = st;
-        }
+    // Saving content type
+    std::string::size_type pos2 = aux.find("Content-Type: ");
+    if (pos2 == std::string::npos)
+    {
+        aux = strFullReq;
+        pos2 = aux.find("Content-Type: ");
+    }
+    if (pos2 != std::string::npos)
+    {
+        pos2 = pos2 + 14;
+        st = aux.substr(pos2, aux.find("\n", pos2) - pos2);
+        st.erase(std::remove(st.begin(), st.end(), '\r'), st.end());
+        this->_contentType = st;
+    }
 
-        // Saving filecontent
+    // Saving filecontent
+    if (this->_boundary.size() != 0)
+    {
         std::string::size_type bodyStart = strBody.find("\r\n\r\n", pos) + 4;
         std::string::size_type bodyEnd = strBody.size() - this->_boundary.size() - 5;
         std::string str(vecBody.begin() + bodyEnd, vecBody.end());
         for(size_t i = 0; (bodyStart + i) < bodyEnd; i++)
             this->_fileContent.push_back(vecBody[i + bodyStart]);
+    }
+    else
+    {
+        for(size_t i = 0; i < strBody.size(); i++)
+            this->_fileContent.push_back(vecBody[i]);
     }
 }
 
@@ -218,8 +241,8 @@ std::ostream & operator<<(std::ostream &ost, const Request &src)
         << "-> CONTENT LENGHT: " << src.getContentLength() << std::endl \
         << "-> CONTENT TYPE: " << src.getContentType() << std::endl \
         << "-> FILENAME: " << src.getFilename() << std::endl;
-    /* ost << "-> FILECONTENT: ";
+    ost << "-> FILECONTENT: ";
     for (size_t i = 0; i < src._fileContent.size(); i++)
-        ost << src._fileContent[i]; */
+        ost << src._fileContent[i];
     return ost;
 }
