@@ -24,8 +24,9 @@ Request::Request(std::vector<char> buf)
     this->_fileName = "";
     this->_full_request = buf;
     this->_contentLength = 0;
+    this->_transEncoding = "";
     getInfo();
-    //std::cout << *this << std::endl;
+    std::cout << *this << std::endl;
 }
 
 bool Request::operator==(const Request& other) const
@@ -37,7 +38,8 @@ bool Request::operator==(const Request& other) const
            _host == other._host &&
            _connection == other._connection &&
            _fileName == other._fileName &&
-           _fileContent == other._fileContent;
+           _fileContent == other._fileContent &&
+           _transEncoding == other._transEncoding;
 }
 
 Request::~Request() {
@@ -88,11 +90,16 @@ std::string Request::getContentType(void) const {
     return this->_contentType;
 }
 
+std::string Request::getTransEncoding(void) const {
+    return this->_transEncoding;
+}
+
 void Request::getInfo(void)
 {
     std::string str(this->_full_request.begin(), this->_full_request.end());
     std::vector<std::string> lines;
     std::vector<std::string> words;
+    std::cout << "Request: " << str << std::endl;
     std::stringstream ss(str);
     std::string line;
     while (std::getline(ss, line))
@@ -129,6 +136,9 @@ void Request::getInfo(void)
                     iss >> this->_contentLength;
                     //std::cout << "-> Content-Length: " << this->_contentLength << std::endl;
                 }
+                // Saving Transfer-Encoding
+                if (firstWord == "Transfer-Encoding:")
+                    this->_transEncoding = line.substr(pos + 1);
             }
             pos = line.find("boundary=");
             if (pos != std::string::npos)
@@ -238,6 +248,7 @@ std::ostream & operator<<(std::ostream &ost, const Request &src)
         << "-> PROTOCOL: " << src.getProtocol() << std::endl \
         << "-> CONNECTION: " << src.getConnection() << std::endl \
         << "-> HOST: " << src.getHost() << std::endl \
+        << "-> TRANSFER-ENCODING: " << src.getTransEncoding() << std::endl \
         << "-> CONTENT LENGHT: " << src.getContentLength() << std::endl \
         << "-> CONTENT TYPE: " << src.getContentType() << std::endl \
         << "-> FILENAME: " << src.getFilename() << std::endl;

@@ -23,6 +23,8 @@ class Request
 		std::string _fileName;
 		size_t		_contentLength;
 		std::string _contentType;
+		std::string _transEncoding;
+		std::string _contentRange;
 		/* int			_socket;
 
 		std::map<std::string, std::string>	header;
@@ -44,6 +46,7 @@ class Request
 		std::vector<char> getFileContent(void) const;
 		size_t getContentLength(void) const;
 		std::string getContentType(void) const;
+		std::string getTransEncoding(void) const;
 		void getInfo(void);
 		std::vector<char> _fileContent;
 		bool operator==(const Request& other) const;
