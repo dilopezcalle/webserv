@@ -75,18 +75,23 @@ int	Route::redirectRequest(int socket_selected)
 			int k;
 			for (k = 0; k < this->_server_list[j].getSizeClientSockets(); k++)
 			{
+				int close_socket = 0;
 				if (socket_selected != this->_server_list[j].getClientSocket(k))
 					continue ;
 				try
 				{
-					this->_server_list[j].handleConnection(socket_selected);
+					close_socket = this->_server_list[j].handleConnection(socket_selected);
 				}
 				catch (std::exception &e)
 				{
 					std::cerr << e.what() << std::endl;
 				}
-				this->_server_list[j].deleteClientSocket(socket_selected);
-				FD_CLR(socket_selected, &this->_currentSockets);
+				std::cout << "UwU: " << socket_selected << std::endl;
+				if (close_socket)
+				{
+					this->_server_list[j].deleteClientSocket(socket_selected);
+					FD_CLR(socket_selected, &this->_currentSockets);
+				}
 			}
 			if (k < this->_server_list[j].getSizeClientSockets())
 				break ;

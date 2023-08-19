@@ -148,8 +148,13 @@ int	Server::handleConnection(int client_socket)
 	response.generateResponse();
 	_serverResponse = response._getFullResponse();
 	sendResponse(client_socket);
-	close(client_socket);
-	printMessage("Closing connection");
+	if (request.getConnection().find("keep-alive") == std::string::npos)
+	{
+		close(client_socket);
+		printMessage("Closing connection");
+		return (1);
+	}
+	printMessage("Keep-alive connection");
 	return (0);
 }
 

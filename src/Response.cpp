@@ -142,6 +142,8 @@ int	Response::methodBuild(int location_index)
 		return (buildPost());
 	else if (_request.getMethod() == "DELETE" && checkMethodRequest(location_index, DELETE) == 0)
 		return (buildDelete());
+	else if (_request.getMethod() == "OPTIONS" && checkMethodRequest(location_index, DELETE) == 0)
+		return (buildDelete());
 	else
 		setErrorPage(403);
 

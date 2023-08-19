@@ -26,7 +26,7 @@ Request::Request(std::vector<char> buf)
     this->_contentLength = 0;
     this->_transEncoding = "";
     getInfo();
-    std::cout << *this << std::endl;
+    //std::cout << *this << std::endl;
 }
 
 bool Request::operator==(const Request& other) const
@@ -99,7 +99,7 @@ void Request::getInfo(void)
     std::string str(this->_full_request.begin(), this->_full_request.end());
     std::vector<std::string> lines;
     std::vector<std::string> words;
-    std::cout << "Request: " << str << std::endl;
+    //std::cout << "Request: " << str << std::endl;
     std::stringstream ss(str);
     std::string line;
     while (std::getline(ss, line))
