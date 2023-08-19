@@ -86,7 +86,7 @@ int	Route::redirectRequest(int socket_selected)
 				{
 					std::cerr << e.what() << std::endl;
 				}
-				std::cout << "UwU: " << socket_selected << std::endl;
+				//std::cout << "Socket fd: " << socket_selected << std::endl;
 				if (close_socket)
 				{
 					this->_server_list[j].deleteClientSocket(socket_selected);
