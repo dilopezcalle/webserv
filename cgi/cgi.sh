@@ -1,10 +1,21 @@
 #!/bin/bash
 
-replace_string() {
+replace_string()
+{
 	input_string=$1
 	replaced_string="${input_string//host_here/$CONFIG_HOST}"
 	echo "${replaced_string//port_here/$CONFIG_PORT}"
 }
+
+
+if [ "$REQUEST_METHOD" == "OPTIONS" ]
+then
+    echo "HTTP/1.1 $REQUEST_STATUS OK"
+    echo "Access-Control-Allow-Origin: http://localhost:$CONFIG_PORT"
+    echo "Access-Control-Allow-Methods: POST"
+    echo "Access-Control-Allow-Headers: content-range, content-type"
+    echo ""
+fi
 
 # Se supone que está comprobado que el archivo no existe
 if [ "$REQUEST_METHOD" == "GET" ]
@@ -17,14 +28,14 @@ then
         # Generar el listado de directorios y archivos en un HTML
         echo "HTTP/1.1 $REQUEST_STATUS OK"
         echo "Content-Type: text/html"
-        echo ""
-        echo "<html>"
-        echo "<head>"
-        echo "<title>Directory Listing: $1</title>"
-        echo "</head>"
-        echo "<body>"
-        echo "<h1>Directory Listing: $1</h1>"
-        echo "<ul>"
+        directory_list+=""
+        directory_list+="<html>"
+        directory_list+="<head>"
+        directory_list+="<title>Directory Listing: $1</title>"
+        directory_list+="</head>"
+        directory_list+="<body>"
+        directory_list+="<h1>Directory Listing: $1</h1>"
+        directory_list+="<ul>"
         
         # Recorrer los archivos y carpetas dentro del directorio
         for file in "$1"/*; do
@@ -32,15 +43,20 @@ then
             
             # Verificar si es un archivo o un directorio
             if [ -d "$file" ]; then
-                echo "<li><strong>$filename/</strong></li>"
+                directory_list+="<li><strong>$filename/</strong></li>"
             else
-                echo "<li>$filename</li>"
+                directory_list+="<li>$filename</li>"
             fi
         done
         
-        echo "</ul>"
-        echo "</body>"
-        echo "</html>"
+        directory_list+="</ul>"
+        directory_list+="</body>"
+        directory_list+="</html>"
+        size=${#directory_list}
+        echo "Content-Length: $size"
+        echo ""
+        echo "$directory_list"
+        echo ""
     else
         filename=$(basename "$1")
         extension="${filename##*.}"
@@ -71,6 +87,7 @@ then
             modified_content=$(replace_string "$content")
             size=${#modified_content}
             echo "HTTP/1.1 $REQUEST_STATUS OK"
+            echo "Access-Control-Allow-Origin: http://localhost:$CONFIG_PORT"
             echo "Content-Length: $size"
             echo ""
             echo "$modified_content"

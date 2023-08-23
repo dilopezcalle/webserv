@@ -36,6 +36,7 @@ private:
 	int	executeCGI(void);
 	int	buildPost(void);
 	int	buildDelete(void);
+	int	buildOptions(void);
 	int	checkRoute(void);
 };
 

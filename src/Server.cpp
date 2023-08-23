@@ -113,10 +113,12 @@ int	Server::handleConnection(int client_socket)
 	std::string line = "";
 	Request request;
 	int bytesread = 1;
+	// std::cout << "request: " << std::endl;
 	while (bytesread > 0 && line != "\r\n")
 	{
 		bzero(buffer, buffeSize);
 		bytesread = read(client_socket, buffer, buffeSize);
+		// std::cout << buffer[0];
 		if (bytesread < 0)
 		{
 			throw serverException("Cannot read request");
@@ -149,24 +151,26 @@ int	Server::handleConnection(int client_socket)
 				line.push_back(buffer[i]);
 		}
 	}
-	//std::cout << "request:\n" << request << std::endl;
+	// std::cout << std::endl;
+	// std::cout << "request:\n" << request << std::endl;
 	Response response(this->_config, request);
-	if (!(_lastRequest == request))
+	if (!(_lastRequest == request) || (_lastRequest == request && request.getMethod() != "GET"))
 	{
 		response.generateResponse();
 		_serverResponse = response._getFullResponse();
 		_lastRequest = request;
 	}
 	sendResponse(client_socket);
-	// if (request.getConnection().find("keep-alive") == std::string::npos)
-	// {
+	if (request.getConnection().find("keep-alive") == std::string::npos)
+	{
 		std::cout << "fd: " << client_socket << std::endl;
 		close(client_socket);
 		printMessage("Closing connection");
 	 	return (1);
-	// }
-	// printMessage("Keep-alive connection"); 
-	// return (0);
+	}
+	std::cout << "fd: " << client_socket << std::endl;
+	printMessage("Keep-alive connection"); 
+	return (0);
 }
 
 // Send response to the client socket

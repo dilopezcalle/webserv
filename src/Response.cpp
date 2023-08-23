@@ -142,8 +142,8 @@ int	Response::methodBuild(int location_index)
 		return (buildPost());
 	else if (_request.getMethod() == "DELETE" && checkMethodRequest(location_index, DELETE) == 0)
 		return (buildDelete());
-	else if (_request.getMethod() == "OPTIONS" && checkMethodRequest(location_index, DELETE) == 0)
-		return (buildDelete());
+	else if (_request.getMethod() == "OPTIONS" && checkMethodRequest(location_index, POST) == 0)
+		return (0);
 	else
 		setErrorPage(403);
 
@@ -153,6 +153,7 @@ int	Response::methodBuild(int location_index)
 // Check that the file does not exist and create it
 int	Response::buildPost(void)
 {
+	std::cout << "LLEGA POST" << std::endl;
     mkdir(_fullPath.c_str(), 0777);
 	_fullPath += "/" + _request.getFilename();
 	std::ifstream file(_fullPath);
@@ -185,6 +186,12 @@ int	Response::buildDelete(void)
 		return (setErrorPage(404));
 	file.close();
 	this->_config.exportEnv("REQUEST_ROUTE", _fullPath);
+	return (0);
+}
+
+int	Response::buildOptions(void)
+{
+	
 	return (0);
 }
 
@@ -251,6 +258,7 @@ int	Response::executeCGI(void)
 		close(fd[0]);
 		//std::cout << "readFileDescriptor() ha empezado" << std::endl;
 		_fullResponse = readFileDescriptor(fd_response);
+		// std::cout << _fullResponse << std::endl;
 		//std::cout << "readFileDescriptor() ha terminado" << std::endl;
 	}
 	return (0);
