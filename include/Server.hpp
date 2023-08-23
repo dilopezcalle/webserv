@@ -18,6 +18,7 @@ private:
 	Config				_config;
 	std::vector<int>	_clientSockets;
 	Request				_lastRequest;
+	bool				_chunked;
 	// std::string			_lastResponse;
 
 public:
@@ -31,6 +32,7 @@ public:
 	int	getSocket(void);
 	int	getClientSocket(int index);
 	int	getSizeClientSockets(void);
+	bool getChunked(void);
 
 	// ===== Setters =====
 	int	pushClientSocket(int client_socket);
@@ -40,6 +42,7 @@ public:
 	int	acceptConnection(void);
 	int	handleConnection(int client_socket);
 	int	deleteClientSocket(int client_socket);
+	int checkBuffer(std::vector<char> buf);
 
 	// ===== Exception =====
 	class serverException : public std::exception

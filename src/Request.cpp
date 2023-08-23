@@ -9,7 +9,10 @@ Request::Request(){
     this->_connection = "";
     this->_boundary = "";
     this->_fileName = "";
+    this->_transEncoding = "";
+    this->_expect = "";
     this->_contentLength = 0;
+    this->_firstChunk = 0;
 }
 
 Request::Request(std::vector<char> buf)
@@ -25,8 +28,10 @@ Request::Request(std::vector<char> buf)
     this->_full_request = buf;
     this->_contentLength = 0;
     this->_transEncoding = "";
+    this->_expect = "";
+    this->_firstChunk = 0;
     getInfo();
-    std::cout << *this << std::endl;
+    //std::cout << *this << std::endl;
 }
 
 bool Request::operator==(const Request& other) const
@@ -39,7 +44,8 @@ bool Request::operator==(const Request& other) const
            _connection == other._connection &&
            _fileName == other._fileName &&
            _fileContent == other._fileContent &&
-           _transEncoding == other._transEncoding;
+           _transEncoding == other._transEncoding &&
+           _firstChunk == other._firstChunk;
 }
 
 Request	&Request::operator=(const Request &src)
@@ -59,6 +65,8 @@ Request	&Request::operator=(const Request &src)
         this->_contentType = src._contentType;
         this->_contentRange = src._contentRange;
         this->_fileContent = src._fileContent;
+        this->_expect = src._expect;
+        this->_firstChunk = src._firstChunk;
     }
     return (*this);
 }
@@ -69,6 +77,10 @@ Request::~Request() {
 
 void Request::setFullRequest(const std::vector<char> &src) {
     this->_full_request = src;
+}
+
+void Request::setFirstChunk() {
+    this->_firstChunk++;
 }
 
 std::vector<char> Request::getFullRequest(void) const {
@@ -115,12 +127,19 @@ std::string Request::getTransEncoding(void) const {
     return this->_transEncoding;
 }
 
+std::string Request::getExpect(void) const {
+    return this->_expect;
+}
+int Request::getFirstChunk(void) const {
+    return (this->_firstChunk);
+}
+
 void Request::getInfo(void)
 {
     std::string str(this->_full_request.begin(), this->_full_request.end());
     std::vector<std::string> lines;
     std::vector<std::string> words;
-    std::cout << "Request: " << str << std::endl;
+    //std::cout << "Request: " << str << std::endl;
     std::stringstream ss(str);
     std::string line;
     while (std::getline(ss, line))
@@ -159,7 +178,10 @@ void Request::getInfo(void)
                 }
                 // Saving Transfer-Encoding
                 if (firstWord == "Transfer-Encoding:" || firstWord == "Content-Range:")
+                {
                     this->_transEncoding = line.substr(pos + 1);
+                    this->_connection = "keep-alive";
+                }
             }
             pos = line.find("boundary=");
             if (pos != std::string::npos)
@@ -167,24 +189,26 @@ void Request::getInfo(void)
                 this->_boundary = line.substr(pos + 9);
                 //std::cout << "-> Boundary: " << this->_boundary << std::endl;
             }
-            /* pos = line.find("filename=");
+            pos = line.find("Expect:");
             if (pos != std::string::npos)
+                this->_expect = line.substr(pos + 7);
+            pos = line.find("filename=");
+            if (pos != std::string::npos && this->_transEncoding != "")
             {
-                // Saving filename
+                // Saving filename in curl requests
                 std::string st = line.substr(pos + 9);
                 st.erase(std::remove(st.begin(), st.end(), '\"'), st.end());
                 st.erase(std::remove(st.begin(), st.end(), '\r'), st.end());
                 this->_fileName = st;
-                // Saving filecontent
+                /* // Saving filecontent
                 std::string::size_type bodyStart = str.find(lines[i + 1]) + lines[i + 1].length() + 3;
                 std::string::size_type bodyEnd = this->_full_request.size() - this->_boundary.size() - 7;
                 std::string str(this->_full_request.begin() + bodyEnd, this->_full_request.end());
-                //std::cout << "EY--------------->>>>> " << str << std::endl;
                 for(size_t i = 0; (bodyStart + i) < bodyEnd; i++)
                     this->_fileContent.push_back(this->_full_request[i + bodyStart]);
                 // Printing the info we just get
-                //std::cout << *this;
-            } */
+                //std::cout << *this; */
+            }
         }
     }
 }
@@ -211,6 +235,7 @@ void Request::setFileContent(int clilent_socket)
     }
     std::string st = "";
     std::string strBody(vecBody.begin(), vecBody.end());
+    // std::cout << "BODY: " << strBody << std::endl;
     std::string strFullReq(this->_full_request.begin(), this->_full_request.end());
     std::string aux = strBody;
 
@@ -228,6 +253,7 @@ void Request::setFileContent(int clilent_socket)
         st.erase(std::remove(st.begin(), st.end(), '\"'), st.end());
         st.erase(std::remove(st.begin(), st.end(), '\r'), st.end());
         this->_fileName = st;
+        //std::cout << "FILENAME = " << st << std::endl;
     }
     aux = strBody;
 
@@ -262,6 +288,28 @@ void Request::setFileContent(int clilent_socket)
     }
 }
 
+void Request::changeChunked(std::vector<char> buf)
+{
+    this->_expect = "";
+    //std::cout << "CHANGECHUNKED\n";
+    std::string str(buf.begin(), buf.end());
+    std::vector<std::string> lines;
+    std::stringstream ss(str);
+    std::string line;
+    std::getline(ss, line);
+
+    // Line 0: Content-Length
+    std::istringstream iss(line);
+    iss >> this->_contentLength;
+
+    // Find the position of the first newline character
+    size_t newlinePos = str.find('\n');
+    this->_fileContent.clear();
+    if (newlinePos != std::string::npos)
+        this->_fileContent.assign(buf.begin() + newlinePos + 1, buf.end());
+    //std::cout << *this << std::endl;
+}
+
 std::ostream & operator<<(std::ostream &ost, const Request &src)
 {
     ost << "-> METHOD: " << src.getMethod() << std::endl \
@@ -270,6 +318,7 @@ std::ostream & operator<<(std::ostream &ost, const Request &src)
         << "-> CONNECTION: " << src.getConnection() << std::endl \
         << "-> HOST: " << src.getHost() << std::endl \
         << "-> TRANSFER-ENCODING: " << src.getTransEncoding() << std::endl \
+        << "-> EXPECT: " << src.getExpect() << std::endl \
         << "-> CONTENT LENGHT: " << src.getContentLength() << std::endl \
         << "-> CONTENT TYPE: " << src.getContentType() << std::endl \
         << "-> FILENAME: " << src.getFilename() << std::endl;

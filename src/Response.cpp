@@ -153,18 +153,32 @@ int	Response::methodBuild(int location_index)
 // Check that the file does not exist and create it
 int	Response::buildPost(void)
 {
-	std::cout << "LLEGA POST" << std::endl;
     mkdir(_fullPath.c_str(), 0777);
 	_fullPath += "/" + _request.getFilename();
 	std::ifstream file(_fullPath);
-	if (file.is_open())
+	std::cout << "firstChunk: " << _request.getFirstChunk() << std::endl \
+	<< "Chunked = " << _request.getTransEncoding() << std::endl;
+	if ((file.is_open() && _request.getTransEncoding().find("chunked") == std::string::npos) ||
+		(file.is_open() && _request.getTransEncoding().find("chunked") != std::string::npos && _request.getFirstChunk() == 0) ||
+		_request.getFirstChunk() >= 1)
 	{
+		std::cout << "\nENTRA AQUI" << std::endl;
+		_request.setFirstChunk();
 		file.close();
 		return (setErrorPage(403));
 	}
+	if (this->_request.getExpect().find("100-continue") != std::string::npos)
+	{
+		this->_config.exportEnv("REQUEST_EXPECT", "100-continue");
+		return (0);
+	}
+	this->_config.exportEnv("REQUEST_EXPECT", "");
 	this->_config.exportEnv("REQUEST_FILE", _fullPath);
 	std::ofstream new_file;
-	new_file.open(_fullPath, std::ios::out);
+	if (_request.getTransEncoding().find("chunked") != std::string::npos)
+		new_file.open(_fullPath, std::ios::app);
+	else
+		new_file.open(_fullPath, std::ios::out);
 	if (new_file.is_open())
 	{
 		for (size_t i = 0; i < _request._fileContent.size(); i++)
@@ -234,7 +248,6 @@ int	Response::executeCGI(void)
 	char	*cgi_args[] = {(char *)"./cgi/cgi.sh", (char *)_fullPath.c_str(), NULL};
 
 	//this->_config.printEnv();
-
 	if (pipe(fd) == -1)
 		return (1);
 	pid = fork();
@@ -258,7 +271,7 @@ int	Response::executeCGI(void)
 		close(fd[0]);
 		//std::cout << "readFileDescriptor() ha empezado" << std::endl;
 		_fullResponse = readFileDescriptor(fd_response);
-		// std::cout << _fullResponse << std::endl;
+		//std::cout << "response: " <<  _fullResponse << std::endl;
 		//std::cout << "readFileDescriptor() ha terminado" << std::endl;
 	}
 	return (0);

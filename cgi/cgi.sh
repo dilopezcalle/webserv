@@ -7,6 +7,12 @@ replace_string()
 	echo "${replaced_string//port_here/$CONFIG_PORT}"
 }
 
+if [ "$REQUEST_EXPECT" == "100-continue" ]
+then
+    echo "HTTP/1.1 100 OK Continue"
+    echo ""
+else
+
 
 if [ "$REQUEST_METHOD" == "OPTIONS" ]
 then
@@ -142,3 +148,4 @@ then
     echo ""
 fi
 
+fi

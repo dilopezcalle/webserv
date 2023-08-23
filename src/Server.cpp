@@ -20,6 +20,7 @@ Server::Server(Config conf)
 	this->_socketAddress.sin_family = AF_INET;
 	this->_socketAddress.sin_port = htons(this->_port);
 	this->_socketAddress.sin_addr.s_addr = inet_addr(this->_ip_address.c_str());
+	this->_chunked = false;
 	_config.printConf();
 }
 // ===== Destructor =====
@@ -43,6 +44,11 @@ int	Server::getClientSocket(int index)
 int	Server::getSizeClientSockets(void)
 {
 	return ((int)this->_clientSockets.size());
+}
+
+bool Server::getChunked(void)
+{
+	return (this->_chunked);
 }
 
 // ===== Setters =====
@@ -112,16 +118,19 @@ int	Server::handleConnection(int client_socket)
 	std::vector<char> vecbuffer;
 	std::string line = "";
 	Request request;
+	Request prevRequest;
 	int bytesread = 1;
 	// std::cout << "request: " << std::endl;
 	while (bytesread > 0 && line != "\r\n")
 	{
 		bzero(buffer, buffeSize);
 		bytesread = read(client_socket, buffer, buffeSize);
-		// std::cout << buffer[0];
 		if (bytesread < 0)
 		{
-			throw serverException("Cannot read request");
+			if (this->_chunked == true)
+				this->_chunked = false;
+			else
+				throw serverException("Cannot read request");
 			break;
 		}
 		for (int i = 0; i < bytesread; i++)
@@ -130,9 +139,24 @@ int	Server::handleConnection(int client_socket)
 			{
 				if (line == "\r")
 				{
-					Request tmp(vecbuffer);
+					Request tmp;
+					if (this->_chunked == true)
+					{
+						if (checkBuffer(vecbuffer))
+						{
+							std::cout << "Chunked file uploaded successfully!\n";
+							this->_chunked = false;
+						}
+						else
+						{
+							tmp = _lastRequest;
+							tmp.changeChunked(vecbuffer);
+						}
+					}
+					else
+						tmp = Request(vecbuffer);
 					vecbuffer.clear();
-					if (tmp.getContentLength())
+					if (tmp.getContentLength() || tmp.getTransEncoding() != "")
 						tmp.setFileContent(client_socket);
 					if ((int)tmp.getContentLength() <= this->_config.getClientMaxBodySize())
 						request = tmp;
@@ -151,24 +175,34 @@ int	Server::handleConnection(int client_socket)
 				line.push_back(buffer[i]);
 		}
 	}
-	// std::cout << std::endl;
-	// std::cout << "request:\n" << request << std::endl;
-	Response response(this->_config, request);
-	if (!(_lastRequest == request) || (_lastRequest == request && request.getMethod() != "GET"))
+	if (bytesread >= 0)
 	{
-		response.generateResponse();
-		_serverResponse = response._getFullResponse();
-		_lastRequest = request;
+		//std::cout << "request:\n" << request << std::endl;
+		Response response(this->_config, request);
+		if (!(_lastRequest == request) || (_lastRequest == request && request.getMethod() != "GET"))
+		{
+			response.generateResponse();
+			_serverResponse = response._getFullResponse();
+			if (this->_chunked == false)
+				_lastRequest = request;
+		}
+
+		sendResponse(client_socket);
+
+		if (request.getTransEncoding().find("chunked") != std::string::npos)
+		{
+			
+			// _lastRequest.setFirstChunk();
+			if (this->_chunked == false)
+				this->_chunked = true;
+		}
 	}
-	sendResponse(client_socket);
-	if (request.getConnection().find("keep-alive") == std::string::npos)
+	if (request.getConnection().find("keep-alive") == std::string::npos || bytesread < 0)
 	{
-		std::cout << "fd: " << client_socket << std::endl;
 		close(client_socket);
 		printMessage("Closing connection");
 	 	return (1);
 	}
-	std::cout << "fd: " << client_socket << std::endl;
 	printMessage("Keep-alive connection"); 
 	return (0);
 }
@@ -178,9 +212,27 @@ void Server::sendResponse(int client_socket)
 {
 	unsigned long bytesSent;
 
+	std::cout << "llega\n" << _serverResponse << std::endl;
 	bytesSent = write(client_socket, _serverResponse.c_str(), _serverResponse.size());
+	std::cout << "sale" << std::endl;
 	if (bytesSent != _serverResponse.size())
 		printMessage("Error sending response to client");
+}
+
+int Server::checkBuffer(std::vector<char> buf)
+{
+	std::string str(buf.begin(), buf.end());
+	std::cout << "============================ Buffer: " << str << std::endl;
+    std::vector<std::string> lines;
+    std::stringstream ss(str);
+    std::string line;
+    while (std::getline(ss, line))
+        lines.push_back(line);
+	// Chunked request. Only contains Content-length and Body
+	if (lines[0].find("HTTP/1.1") == std::string::npos)
+		return (0);
+	// Normal HTTP 1.1 request
+	return (1);
 }
 
 // ===== Exception =====
