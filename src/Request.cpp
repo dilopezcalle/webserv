@@ -42,6 +42,24 @@ bool Request::operator==(const Request& other) const
            _transEncoding == other._transEncoding;
 }
 
+Request	&Request::operator=(const Request &src)
+{
+    if (this != &src)
+    {
+        this->_method = src._method;
+        this->_route = src._route;
+        this->_protocol = src._protocol;
+        this->_host = src._host;
+        this->_connection = src._connection;
+        this->_boundary = src._boundary;
+        this->_fileName = src._fileName;
+        this->_full_request = src._full_request;
+        this->_contentLength = src._contentLength;
+        this->_transEncoding = src._transEncoding;
+    }
+    return (*this);
+}
+
 Request::~Request() {
     //std::cout << "[PRUEBAS_ANDONI] Destroying request" << std::endl;
 }

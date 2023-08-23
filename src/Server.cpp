@@ -117,13 +117,17 @@ int	Server::handleConnection(int client_socket)
 	{
 		bzero(buffer, buffeSize);
 		bytesread = read(client_socket, buffer, buffeSize);
-		if (bytesread < 0) {
+		if (bytesread < 0)
+		{
 			throw serverException("Cannot read request");
 			break;
 		}
-		for (int i = 0; i < bytesread; i++) {
-			if (buffer[i] == '\n') {
-				if (line == "\r") {
+		for (int i = 0; i < bytesread; i++)
+		{
+			if (buffer[i] == '\n')
+			{
+				if (line == "\r")
+				{
 					Request tmp(vecbuffer);
 					vecbuffer.clear();
 					if (tmp.getContentLength())
@@ -133,29 +137,36 @@ int	Server::handleConnection(int client_socket)
 					else
 						std::cout << "Error: Body is too big! Using an empty request" << std::endl;
 					bytesread = 0;
-				} else {
-				vecbuffer.insert(vecbuffer.end(), line.begin(), line.end());
-				vecbuffer.push_back('\n');
-				line.clear();
 				}
-			} else {
-				line.push_back(buffer[i]);
+				else
+				{
+					vecbuffer.insert(vecbuffer.end(), line.begin(), line.end());
+					vecbuffer.push_back('\n');
+					line.clear();
+				}
 			}
+			else
+				line.push_back(buffer[i]);
 		}
 	}
 	//std::cout << "request:\n" << request << std::endl;
 	Response response(this->_config, request);
-	response.generateResponse();
-	_serverResponse = response._getFullResponse();
+	if (!(_lastRequest == request))
+	{
+		response.generateResponse();
+		_serverResponse = response._getFullResponse();
+		_lastRequest = request;
+	}
 	sendResponse(client_socket);
-	/* if (request.getConnection().find("keep-alive") == std::string::npos)
-	{ */
+	// if (request.getConnection().find("keep-alive") == std::string::npos)
+	// {
+		std::cout << "fd: " << client_socket << std::endl;
 		close(client_socket);
 		printMessage("Closing connection");
 	 	return (1);
-	/* }
-	printMessage("Keep-alive connection"); 
-	return (0); */
+	// }
+	// printMessage("Keep-alive connection"); 
+	// return (0);
 }
 
 // Send response to the client socket

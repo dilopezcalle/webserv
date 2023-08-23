@@ -50,6 +50,7 @@ class Request
 		void getInfo(void);
 		std::vector<char> _fileContent;
 		bool operator==(const Request& other) const;
+		Request	&operator=(const Request &src);
 		void setFileContent(int clilent_socket);
 };
 std::ostream &operator<<( std::ostream &ost, Request const &src );

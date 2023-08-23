@@ -17,6 +17,8 @@ private:
 	std::string			_serverResponse;
 	Config				_config;
 	std::vector<int>	_clientSockets;
+	Request				_lastRequest;
+	// std::string			_lastResponse;
 
 public:
 	// ===== Constructor =====
