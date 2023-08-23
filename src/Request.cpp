@@ -26,7 +26,7 @@ Request::Request(std::vector<char> buf)
     this->_contentLength = 0;
     this->_transEncoding = "";
     getInfo();
-    //std::cout << *this << std::endl;
+    std::cout << *this << std::endl;
 }
 
 bool Request::operator==(const Request& other) const
@@ -46,6 +46,7 @@ Request	&Request::operator=(const Request &src)
 {
     if (this != &src)
     {
+        this->_full_request = src._full_request;
         this->_method = src._method;
         this->_route = src._route;
         this->_protocol = src._protocol;
@@ -53,9 +54,11 @@ Request	&Request::operator=(const Request &src)
         this->_connection = src._connection;
         this->_boundary = src._boundary;
         this->_fileName = src._fileName;
-        this->_full_request = src._full_request;
         this->_contentLength = src._contentLength;
         this->_transEncoding = src._transEncoding;
+        this->_contentType = src._contentType;
+        this->_contentRange = src._contentRange;
+        this->_fileContent = src._fileContent;
     }
     return (*this);
 }
@@ -117,7 +120,7 @@ void Request::getInfo(void)
     std::string str(this->_full_request.begin(), this->_full_request.end());
     std::vector<std::string> lines;
     std::vector<std::string> words;
-    //std::cout << "Request: " << str << std::endl;
+    std::cout << "Request: " << str << std::endl;
     std::stringstream ss(str);
     std::string line;
     while (std::getline(ss, line))
@@ -155,7 +158,7 @@ void Request::getInfo(void)
                     //std::cout << "-> Content-Length: " << this->_contentLength << std::endl;
                 }
                 // Saving Transfer-Encoding
-                if (firstWord == "Transfer-Encoding:")
+                if (firstWord == "Transfer-Encoding:" || firstWord == "Content-Range:")
                     this->_transEncoding = line.substr(pos + 1);
             }
             pos = line.find("boundary=");
