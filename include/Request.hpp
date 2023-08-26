@@ -26,7 +26,7 @@ class Request
 		std::string _transEncoding;
 		std::string _contentRange;
 		std::string _expect;
-		int			_firstChunk;
+		bool		_fileExist;
 		/* int			_socket;
 
 		std::map<std::string, std::string>	header;
@@ -50,13 +50,14 @@ class Request
 		std::string getContentType(void) const;
 		std::string getTransEncoding(void) const;
 		std::string getExpect(void) const;
-		int getFirstChunk(void) const;
+		int getFileExist(void) const;
 		void getInfo(void);
 		std::vector<char> _fileContent;
 		bool operator==(const Request& other) const;
 		Request	&operator=(const Request &src);
 		void setFileContent(int clilent_socket);
-		void setFirstChunk();
+		void setFileExist(bool status);
+		void setExpect(std::string str);
 		void changeChunked(std::vector<char> buf);
 };
 std::ostream &operator<<( std::ostream &ost, Request const &src );

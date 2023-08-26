@@ -21,7 +21,7 @@ Server::Server(Config conf)
 	this->_socketAddress.sin_port = htons(this->_port);
 	this->_socketAddress.sin_addr.s_addr = inet_addr(this->_ip_address.c_str());
 	this->_chunked = false;
-	_config.printConf();
+	// _config.printConf();
 }
 // ===== Destructor =====
 Server::~Server()
@@ -120,7 +120,6 @@ int	Server::handleConnection(int client_socket)
 	Request request;
 	Request prevRequest;
 	int bytesread = 1;
-	// std::cout << "request: " << std::endl;
 	while (bytesread > 0 && line != "\r\n")
 	{
 		bzero(buffer, buffeSize);
@@ -128,7 +127,10 @@ int	Server::handleConnection(int client_socket)
 		if (bytesread < 0)
 		{
 			if (this->_chunked == true)
+			{
+				_lastRequest.setFileExist(false);
 				this->_chunked = false;
+			}
 			else
 				throw serverException("Cannot read request");
 			break;
@@ -143,10 +145,7 @@ int	Server::handleConnection(int client_socket)
 					if (this->_chunked == true)
 					{
 						if (checkBuffer(vecbuffer))
-						{
-							std::cout << "Chunked file uploaded successfully!\n";
 							this->_chunked = false;
-						}
 						else
 						{
 							tmp = _lastRequest;
@@ -177,7 +176,8 @@ int	Server::handleConnection(int client_socket)
 	}
 	if (bytesread >= 0)
 	{
-		//std::cout << "request:\n" << request << std::endl;
+		if (request.getTransEncoding().find("chunked") != std::string::npos && this->_chunked == false)
+			request.setExpect("100-continue"); // No funciona el parseo, provicional
 		Response response(this->_config, request);
 		if (!(_lastRequest == request) || (_lastRequest == request && request.getMethod() != "GET"))
 		{
@@ -190,12 +190,7 @@ int	Server::handleConnection(int client_socket)
 		sendResponse(client_socket);
 
 		if (request.getTransEncoding().find("chunked") != std::string::npos)
-		{
-			
-			// _lastRequest.setFirstChunk();
-			if (this->_chunked == false)
-				this->_chunked = true;
-		}
+			this->_chunked = true;
 	}
 	if (request.getConnection().find("keep-alive") == std::string::npos || bytesread < 0)
 	{
@@ -212,9 +207,7 @@ void Server::sendResponse(int client_socket)
 {
 	unsigned long bytesSent;
 
-	std::cout << "llega\n" << _serverResponse << std::endl;
 	bytesSent = write(client_socket, _serverResponse.c_str(), _serverResponse.size());
-	std::cout << "sale" << std::endl;
 	if (bytesSent != _serverResponse.size())
 		printMessage("Error sending response to client");
 }
@@ -222,7 +215,7 @@ void Server::sendResponse(int client_socket)
 int Server::checkBuffer(std::vector<char> buf)
 {
 	std::string str(buf.begin(), buf.end());
-	std::cout << "============================ Buffer: " << str << std::endl;
+	// std::cout << "============================ Buffer: " << str << std::endl;
     std::vector<std::string> lines;
     std::stringstream ss(str);
     std::string line;

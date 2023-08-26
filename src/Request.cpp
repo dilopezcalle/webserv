@@ -12,7 +12,7 @@ Request::Request(){
     this->_transEncoding = "";
     this->_expect = "";
     this->_contentLength = 0;
-    this->_firstChunk = 0;
+    this->_fileExist = false;
 }
 
 Request::Request(std::vector<char> buf)
@@ -29,7 +29,7 @@ Request::Request(std::vector<char> buf)
     this->_contentLength = 0;
     this->_transEncoding = "";
     this->_expect = "";
-    this->_firstChunk = 0;
+    this->_fileExist = false;
     getInfo();
     //std::cout << *this << std::endl;
 }
@@ -45,7 +45,7 @@ bool Request::operator==(const Request& other) const
            _fileName == other._fileName &&
            _fileContent == other._fileContent &&
            _transEncoding == other._transEncoding &&
-           _firstChunk == other._firstChunk;
+           _fileExist == other._fileExist;
 }
 
 Request	&Request::operator=(const Request &src)
@@ -66,7 +66,7 @@ Request	&Request::operator=(const Request &src)
         this->_contentRange = src._contentRange;
         this->_fileContent = src._fileContent;
         this->_expect = src._expect;
-        this->_firstChunk = src._firstChunk;
+        this->_fileExist = src._fileExist;
     }
     return (*this);
 }
@@ -79,8 +79,8 @@ void Request::setFullRequest(const std::vector<char> &src) {
     this->_full_request = src;
 }
 
-void Request::setFirstChunk() {
-    this->_firstChunk++;
+void Request::setFileExist(bool status) {
+    this->_fileExist = status;
 }
 
 std::vector<char> Request::getFullRequest(void) const {
@@ -130,8 +130,8 @@ std::string Request::getTransEncoding(void) const {
 std::string Request::getExpect(void) const {
     return this->_expect;
 }
-int Request::getFirstChunk(void) const {
-    return (this->_firstChunk);
+int Request::getFileExist(void) const {
+    return (this->_fileExist);
 }
 
 void Request::getInfo(void)
@@ -191,7 +191,10 @@ void Request::getInfo(void)
             }
             pos = line.find("Expect:");
             if (pos != std::string::npos)
+            {
+                std::cout << "DA VALOR A EXPECT" << std::endl;
                 this->_expect = line.substr(pos + 7);
+            }
             pos = line.find("filename=");
             if (pos != std::string::npos && this->_transEncoding != "")
             {
@@ -308,6 +311,11 @@ void Request::changeChunked(std::vector<char> buf)
     if (newlinePos != std::string::npos)
         this->_fileContent.assign(buf.begin() + newlinePos + 1, buf.end());
     //std::cout << *this << std::endl;
+}
+
+void Request::setExpect(std::string str)
+{
+    this->_expect = str;
 }
 
 std::ostream & operator<<(std::ostream &ost, const Request &src)

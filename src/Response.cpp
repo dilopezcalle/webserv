@@ -156,14 +156,10 @@ int	Response::buildPost(void)
     mkdir(_fullPath.c_str(), 0777);
 	_fullPath += "/" + _request.getFilename();
 	std::ifstream file(_fullPath);
-	std::cout << "firstChunk: " << _request.getFirstChunk() << std::endl \
-	<< "Chunked = " << _request.getTransEncoding() << std::endl;
-	if ((file.is_open() && _request.getTransEncoding().find("chunked") == std::string::npos) ||
-		(file.is_open() && _request.getTransEncoding().find("chunked") != std::string::npos && _request.getFirstChunk() == 0) ||
-		_request.getFirstChunk() >= 1)
+	if (file.is_open() || _request.getFileExist() == true)
 	{
-		std::cout << "\nENTRA AQUI" << std::endl;
-		_request.setFirstChunk();
+		if (_request.getTransEncoding().find("chunked") == std::string::npos)
+			_request.setFileExist(true);
 		file.close();
 		return (setErrorPage(403));
 	}
@@ -247,7 +243,6 @@ int	Response::executeCGI(void)
 	int		pid;
 	char	*cgi_args[] = {(char *)"./cgi/cgi.sh", (char *)_fullPath.c_str(), NULL};
 
-	//this->_config.printEnv();
 	if (pipe(fd) == -1)
 		return (1);
 	pid = fork();
@@ -269,10 +264,8 @@ int	Response::executeCGI(void)
 		waitpid(pid, NULL, 0);
 		int fd_response = dup(fd[0]);
 		close(fd[0]);
-		//std::cout << "readFileDescriptor() ha empezado" << std::endl;
 		_fullResponse = readFileDescriptor(fd_response);
-		//std::cout << "response: " <<  _fullResponse << std::endl;
-		//std::cout << "readFileDescriptor() ha terminado" << std::endl;
+		// std::cout << _fullResponse << std::endl;
 	}
 	return (0);
 }
