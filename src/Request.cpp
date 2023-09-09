@@ -17,7 +17,6 @@ Request::Request(){
 
 Request::Request(std::vector<char> buf)
 {
-    //std::cout << "[PRUEBAS_ANDONI] Generating request" << std::endl;
     this->_method = "";
     this->_route = "";
     this->_protocol = "";
@@ -31,7 +30,6 @@ Request::Request(std::vector<char> buf)
     this->_expect = "";
     this->_fileExist = false;
     getInfo();
-    //std::cout << *this << std::endl;
 }
 
 bool Request::operator==(const Request& other) const
@@ -71,9 +69,7 @@ Request	&Request::operator=(const Request &src)
     return (*this);
 }
 
-Request::~Request() {
-    //std::cout << "[PRUEBAS_ANDONI] Destroying request" << std::endl;
-}
+Request::~Request() {}
 
 void Request::setFullRequest(const std::vector<char> &src) {
     this->_full_request = src;
@@ -139,7 +135,6 @@ void Request::getInfo(void)
     std::string str(this->_full_request.begin(), this->_full_request.end());
     std::vector<std::string> lines;
     std::vector<std::string> words;
-    //std::cout << "Request: " << str << std::endl;
     std::stringstream ss(str);
     std::string line;
     while (std::getline(ss, line))
@@ -174,7 +169,6 @@ void Request::getInfo(void)
                 {
                     std::istringstream iss(line.substr(pos + 1));
                     iss >> this->_contentLength;
-                    //std::cout << "-> Content-Length: " << this->_contentLength << std::endl;
                 }
                 // Saving Transfer-Encoding
                 if (firstWord == "Transfer-Encoding:" || firstWord == "Content-Range:")
@@ -185,10 +179,7 @@ void Request::getInfo(void)
             }
             pos = line.find("boundary=");
             if (pos != std::string::npos)
-            {
                 this->_boundary = line.substr(pos + 9);
-                //std::cout << "-> Boundary: " << this->_boundary << std::endl;
-            }
             pos = line.find("Expect:");
             if (pos != std::string::npos)
             {
@@ -203,14 +194,6 @@ void Request::getInfo(void)
                 st.erase(std::remove(st.begin(), st.end(), '\"'), st.end());
                 st.erase(std::remove(st.begin(), st.end(), '\r'), st.end());
                 this->_fileName = st;
-                /* // Saving filecontent
-                std::string::size_type bodyStart = str.find(lines[i + 1]) + lines[i + 1].length() + 3;
-                std::string::size_type bodyEnd = this->_full_request.size() - this->_boundary.size() - 7;
-                std::string str(this->_full_request.begin() + bodyEnd, this->_full_request.end());
-                for(size_t i = 0; (bodyStart + i) < bodyEnd; i++)
-                    this->_fileContent.push_back(this->_full_request[i + bodyStart]);
-                // Printing the info we just get
-                //std::cout << *this; */
             }
         }
     }
@@ -238,7 +221,6 @@ void Request::setFileContent(int clilent_socket)
     }
     std::string st = "";
     std::string strBody(vecBody.begin(), vecBody.end());
-    // std::cout << "BODY: " << strBody << std::endl;
     std::string strFullReq(this->_full_request.begin(), this->_full_request.end());
     std::string aux = strBody;
 
@@ -256,7 +238,6 @@ void Request::setFileContent(int clilent_socket)
         st.erase(std::remove(st.begin(), st.end(), '\"'), st.end());
         st.erase(std::remove(st.begin(), st.end(), '\r'), st.end());
         this->_fileName = st;
-        //std::cout << "FILENAME = " << st << std::endl;
     }
     aux = strBody;
 
@@ -294,7 +275,6 @@ void Request::setFileContent(int clilent_socket)
 void Request::changeChunked(std::vector<char> buf)
 {
     this->_expect = "";
-    //std::cout << "CHANGECHUNKED\n";
     std::string str(buf.begin(), buf.end());
     std::vector<std::string> lines;
     std::stringstream ss(str);
@@ -305,12 +285,11 @@ void Request::changeChunked(std::vector<char> buf)
     std::istringstream iss(line);
     iss >> this->_contentLength;
 
-    // Find the position of the first newline character
+    // Finds the position of the first newline character
     size_t newlinePos = str.find('\n');
     this->_fileContent.clear();
     if (newlinePos != std::string::npos)
         this->_fileContent.assign(buf.begin() + newlinePos + 1, buf.end());
-    //std::cout << *this << std::endl;
 }
 
 void Request::setExpect(std::string str)

@@ -23,6 +23,7 @@ Server::Server(Config conf)
 	this->_chunked = false;
 	// _config.printConf();
 }
+
 // ===== Destructor =====
 Server::~Server()
 {
@@ -35,12 +36,14 @@ int	Server::getSocket(void)
 {
 	return (this->_socket);
 }
+
 int	Server::getClientSocket(int index)
 {
 	if (index < (int)this->_clientSockets.size())
 		return (this->_clientSockets[index]);
 	return (0);
 }
+
 int	Server::getSizeClientSockets(void)
 {
 	return ((int)this->_clientSockets.size());
@@ -57,6 +60,7 @@ int	Server::pushClientSocket(int client_socket)
 	this->_clientSockets.push_back(client_socket);
 	return (0);
 }
+
 int	Server::deleteClientSocket(int client_socket)
 {
 	std::vector<int>::iterator it = std::find(this->_clientSockets.begin(), this->_clientSockets.end(), client_socket);
@@ -215,7 +219,6 @@ void Server::sendResponse(int client_socket)
 int Server::checkBuffer(std::vector<char> buf)
 {
 	std::string str(buf.begin(), buf.end());
-	// std::cout << "============================ Buffer: " << str << std::endl;
     std::vector<std::string> lines;
     std::stringstream ss(str);
     std::string line;
@@ -234,6 +237,7 @@ Server::serverException::serverException(const char *error)
 	this->_error = (char *)error;
 	return ;
 };
+
 const char *Server::serverException::what() const throw()
 {
 	return (this->_error);

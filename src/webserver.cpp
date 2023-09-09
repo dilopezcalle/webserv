@@ -7,7 +7,6 @@
 #include "utils.hpp"
 #include "utils_config.hpp"
 #include "tests.hpp"
-
 #include "web_server.hpp"
 
 int	main(int argc, char **argv, char **env)
@@ -31,14 +30,11 @@ int	main(int argc, char **argv, char **env)
 			for (it = servers.begin(); it != servers.end(); ++it)
 			{
 				const std::string &element = *it;
-				//std::cout << "Element: " << element << std::endl;
 				Config tmp("");
 				tmp.setEnv(env);
 				tmp.fillFields(element);
-				// tmp.printConf();
 				configs.push_back(tmp);
 			}
-			// De momento solo usamos el primer server
 			testConfigs(configs);
 			Route route(configs);
 			route.startListen();

@@ -44,7 +44,7 @@ Config::Config()
 // Operator
 Config	&Config::operator=(const Config &src)
 {
-	// Limpiar el contenido de this
+	// Cleaning the content of the atributes
 
 	this->host = src.host;
 	this->port = src.port;
@@ -89,8 +89,8 @@ Config::Config(const Config &src)
 Config::Config(std::string msg)
 {
 	std::cout << msg << std::endl;
+	// Initialising the content of atributes
 	this->port = 0;
-	//Sobreescribir host en fillFields
 	this->host = "";
 	this->client_max_body_size = 0;
 	this->dirList = false;
@@ -112,6 +112,7 @@ Config::t_error_page	Config::getErrorPage(int index)
 	t_error_page	empty;
 	return (empty);
 }
+
 std::string	Config::getHost(void)
 {
 	return (this->host);
@@ -161,10 +162,9 @@ std::vector<Config::t_location>		Config::getLocations(void)
 
 void Config::setEnv(char **env)
 {
-	// Recorrer el arreglo de punteros a char hasta encontrar el elemento nulo (final)
 	for (int i = 0; env[i] != nullptr; i++)
 	{
-		// Separar la cadena en la forma "clave=valor"
+		// Getting the info and storing it in "KEY=VALUE" format
 		std::string envStr(env[i]);
 		size_t equalsPos = envStr.find('=');
 		if (equalsPos != std::string::npos)
@@ -202,17 +202,17 @@ void Config::fillFields(const std::string &src)
 	bool inLocation = 0;
 	std::size_t locationIndex = 0;
 
-	// Leer las líneas del texto y almacenarlas en un deque
+	// Gets all the lines and pushes them in the lines vector
 	while (std::getline(iss, line))
 		lines.push_back(line);
 
-	// Recorrer las líneas y buscar coincidencias en la primera palabra
+	// Searches for coincidences in the first word of each line
 	for (std::size_t i = 0; i < lines.size(); ++i)
 	{
 		if (lines[i].empty() || (lines[i].length() <= 2 && lines[i].find("}") == std::string::npos))
 			continue;
 		std::vector<std::string> words = fillWords(lines[i]);
-		// Comprobar que no haya campos duplicados
+		// Checks if there are duplicated values
 		std::vector<std::string>::const_iterator it;
 		if (words[0] != "location" && words[0] != "error_page")
 		{
@@ -234,7 +234,7 @@ void Config::fillFields(const std::string &src)
 		}
 		if (words[0] == "server")
 			continue;
-		// Agregar un comentario para cada palabra clave encontrada
+		// Saves the content for each atribute if there is a coincidence
 		if (words[0] == "listen")
 			saveListen(words);
 		else if (words[0] == "server_name")
@@ -256,11 +256,11 @@ void Config::fillFields(const std::string &src)
 				throw std::runtime_error("Error: too many fields");
 			if (!inLocation)
 			{
-				// Comprobamos que se cierren los corchetes correctamente
+				// Checks if keys are correctly closed
 				for (std::size_t j = i + 1; lines[j].find("}") == std::string::npos; j++)
 					if (j == lines.size() - 1 || lines[j].find("location") != std::string::npos || lines[j].find("server") != std::string::npos)
 						throw std::runtime_error("Error: location {} not closed");
-				// Creamos un location y lo pusheamos al vector
+				// Creates a new t_location and pushes it to the vector
 				t_location tmp;
 				initLocation(tmp);
 				tmp.path = words[1];
@@ -291,10 +291,10 @@ std::vector<std::string> Config::fillWords(std::string line)
 	std::istringstream lineStream(line);
 	std::vector<std::string> words;
 	std::string word;
-	// Descomponemos la linea en palabras
+	// Descomposing the line in words
 	while (lineStream >> word)
 	{
-		// Tanto ; como # se interpretan como comentarios
+		// ';' and '#' state the beginning of a comment
 		if (word.find(";") != std::string::npos || word.find("#") != std::string::npos)
 		{
 			word = word.substr(0, word.find(";"));
@@ -414,7 +414,12 @@ void Config::saveLocation(std::vector<std::string> &words, std::size_t &location
 
 void Config::saveServerName(std::vector<std::string> &words)
 {
-	/* // Max 3 server names. POR REVISAR!
+	/* 
+	// =============================
+	// REMOVED BECAUSE NOT MANDATORY
+	// =============================
+	//
+	// Max 3 server names.
 	if (words.size() > 4)
 			throw std::runtime_error("Error: too many fields");
 	for (size_t i = 1; i < words.size(); i++)
@@ -437,20 +442,16 @@ void Config::saveServerName(std::vector<std::string> &words)
 void Config::saveListen(const std::vector<std::string> &words)
 {
 	std::istringstream iss;
-	// minitest. listen solo va a tener dos palabras. listen y el puerto
+	// minitest. listen must have only two words: listen and port number
 	if (words.size() != 2)
 		throw std::runtime_error("Error: invalid host");
 	size_t pos = words[1].find(":");
-	// si no hay dos puntos, guardamos tal cual el resultado
-	if( pos == std::string::npos)
+	// if there is no ':', stores the result as it is
+	if (pos == std::string::npos)
 		iss.str(words[1]);
 	else
 	{
-		// si hay dos puntos separamos el host del puerto y los guardamos
 		std::string ipAddress = words[1].substr(0, pos);
-		/* if (isValidIPAddress(ipAddress))
-			this->host = ipAddress;
-		 */
 		if (ipAddress == "127.0.0.1")
 			this->host = ipAddress;
 		else

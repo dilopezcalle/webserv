@@ -27,11 +27,6 @@ class Request
 		std::string _contentRange;
 		std::string _expect;
 		bool		_fileExist;
-		/* int			_socket;
-
-		std::map<std::string, std::string>	header;
-
-		std::string	_body; */
 
 	public:
 		Request();

@@ -47,7 +47,6 @@ std::string	readFileDescriptor(int fd)
             break ;
         ss.write(buffer, bytesRead);
     }
-
     return (ss.str());
 }
 

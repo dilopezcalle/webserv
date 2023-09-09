@@ -146,7 +146,6 @@ int	Response::methodBuild(int location_index)
 		return (0);
 	else
 		setErrorPage(403);
-
 	return (0);
 }
 
@@ -265,7 +264,6 @@ int	Response::executeCGI(void)
 		int fd_response = dup(fd[0]);
 		close(fd[0]);
 		_fullResponse = readFileDescriptor(fd_response);
-		// std::cout << _fullResponse << std::endl;
 	}
 	return (0);
 }

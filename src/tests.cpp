@@ -24,12 +24,6 @@ void testConfigs(std::vector<Config> configs)
         testErrorPage(configs[i].getErrorPages());
         // Minitests for location{}
         testLocation(configs[i].getLocations());
-        /* for(size_t j = 0; j < configs[i].server_name.size(); j++)
-        {
-            if (std::find(hosts.begin(), hosts.end(), configs[i].server_name[j]) != hosts.end())
-                throw std::runtime_error("Error: duplicated hosts.");
-            hosts.push_back(configs[i].server_name[j]);
-        } */
     }
 }
 
@@ -108,21 +102,21 @@ void testLocation(std::vector<Config::t_location> locations)
 std::string joinPaths(std::string root, std::string path)
 {
     std::string result = "";
-    // Verificar si alguno está vacío
+    // Cheks if it is empty
     if (path.empty())
         return root;
     if (root.empty())
         return path;
-    // Verificar si el path es absoluto
+    // Checks if path is absolute
     if (path[0] == '/')
         path = path.substr(1);
-    // Verificar si el path comienza con './'
+    // Checks if path starts with './'
     if (path.substr(0, 2) == "./")
         path = path.substr(2);
-    // Verificar si el path contiene el root
+    // Checks if path includes the root path
     if (path.substr(0, root.size()) == root)
         return path;
-    // Verificar si el root termina con '/'
+    // Checks if it has '/'
     if (!root.empty() && root.back() != '/')
         return root + '/' + path;
     return root + path;

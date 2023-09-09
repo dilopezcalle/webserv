@@ -1,6 +1,6 @@
 #include "Route.hpp"
-
 #include <string.h>
+
 // ===== Constructors =====
 Route::Route(Config conf)
 {
@@ -8,6 +8,7 @@ Route::Route(Config conf)
 	this->_server_list[0].startServer();
 	return ;
 }
+
 Route::Route(std::vector<Config> config_list)
 {
 	for (int i = 0; i < (int)config_list.size(); i++)
@@ -16,6 +17,7 @@ Route::Route(std::vector<Config> config_list)
 		this->_server_list[i].startServer();
 	return ;
 }
+
 // ===== Destructor =====
 Route::~Route(){ return ; }
 
@@ -86,7 +88,6 @@ int	Route::redirectRequest(int socket_selected)
 				{
 					std::cerr << e.what() << std::endl;
 				}
-				//std::cout << "Socket fd: " << socket_selected << std::endl;
 				if (close_socket)
 				{
 					this->_server_list[j].deleteClientSocket(socket_selected);

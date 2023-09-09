@@ -19,7 +19,6 @@ private:
 	std::vector<int>	_clientSockets;
 	Request				_lastRequest;
 	bool				_chunked;
-	// std::string			_lastResponse;
 
 public:
 	// ===== Constructor =====

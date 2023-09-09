@@ -12,10 +12,9 @@
 #include <unistd.h>
 #include <algorithm>
 
-// En esta clase se parsea y guardan todos los datos extraidos de un archivo de configuración
+// In this class all config params are checked and stored
 class Config
 {
-	// Estructuras de datos de un servidor
 	public:
 		typedef struct s_error_page
 		{
@@ -68,8 +67,6 @@ class Config
 		bool			getDirList(void) const;
 
 		Config	&operator=(const Config &src);
-
-		//void setBody(std::string &server);
 		std::string getBody(void) const;
 		const std::map<std::string, std::string> &getEnvironment() const;
     	void setEnv(char** env);
