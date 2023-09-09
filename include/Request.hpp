@@ -27,6 +27,7 @@ class Request
 		std::string _contentRange;
 		std::string _expect;
 		bool		_fileExist;
+		std::string	_access_control;
 
 	public:
 		Request();
@@ -45,6 +46,7 @@ class Request
 		std::string getContentType(void) const;
 		std::string getTransEncoding(void) const;
 		std::string getExpect(void) const;
+		std::string getAccessControl(void) const;
 		int getFileExist(void) const;
 		void getInfo(void);
 		std::vector<char> _fileContent;

@@ -11,6 +11,7 @@ Request::Request(){
     this->_fileName = "";
     this->_transEncoding = "";
     this->_expect = "";
+    this->_access_control = "";
     this->_contentLength = 0;
     this->_fileExist = false;
 }
@@ -29,6 +30,7 @@ Request::Request(std::vector<char> buf)
     this->_transEncoding = "";
     this->_expect = "";
     this->_fileExist = false;
+    this->_access_control = "";
     getInfo();
 }
 
@@ -43,7 +45,8 @@ bool Request::operator==(const Request& other) const
            _fileName == other._fileName &&
            _fileContent == other._fileContent &&
            _transEncoding == other._transEncoding &&
-           _fileExist == other._fileExist;
+           _fileExist == other._fileExist &&
+           _access_control == other._access_control;
 }
 
 Request	&Request::operator=(const Request &src)
@@ -65,6 +68,7 @@ Request	&Request::operator=(const Request &src)
         this->_fileContent = src._fileContent;
         this->_expect = src._expect;
         this->_fileExist = src._fileExist;
+        this->_access_control = src._access_control;
     }
     return (*this);
 }
@@ -130,6 +134,10 @@ int Request::getFileExist(void) const {
     return (this->_fileExist);
 }
 
+std::string Request::getAccessControl(void) const {
+    return (this->_access_control);
+}
+
 void Request::getInfo(void)
 {
     std::string str(this->_full_request.begin(), this->_full_request.end());
@@ -176,6 +184,8 @@ void Request::getInfo(void)
                     this->_transEncoding = line.substr(pos + 1);
                     this->_connection = "keep-alive";
                 }
+                if (firstWord == "Access-Control-Request-Method:")
+                    this->_access_control = line.substr(pos + 1);
             }
             pos = line.find("boundary=");
             if (pos != std::string::npos)
@@ -308,6 +318,7 @@ std::ostream & operator<<(std::ostream &ost, const Request &src)
         << "-> EXPECT: " << src.getExpect() << std::endl \
         << "-> CONTENT LENGHT: " << src.getContentLength() << std::endl \
         << "-> CONTENT TYPE: " << src.getContentType() << std::endl \
+        << "-> ACCESS CONTROL: " << src.getAccessControl() << std::endl \
         << "-> FILENAME: " << src.getFilename() << std::endl;
     ost << "-> FILECONTENT: ";
     for (size_t i = 0; i < src._fileContent.size(); i++)

@@ -124,14 +124,17 @@ int	Server::handleConnection(int client_socket)
 	Request request;
 	Request prevRequest;
 	int bytesread = 1;
+	std::cout << std::endl;
 	while (bytesread > 0 && line != "\r\n")
 	{
 		bzero(buffer, buffeSize);
 		bytesread = read(client_socket, buffer, buffeSize);
+		std::cout << buffer[0];
 		if (bytesread < 0)
 		{
 			if (this->_chunked == true)
 			{
+				std::cout << "Es chunked" << std::endl;
 				_lastRequest.setFileExist(false);
 				this->_chunked = false;
 			}
@@ -178,11 +181,13 @@ int	Server::handleConnection(int client_socket)
 				line.push_back(buffer[i]);
 		}
 	}
+	std::cout << "\n" << std::endl;
 	if (bytesread >= 0)
 	{
 		if (request.getTransEncoding().find("chunked") != std::string::npos && this->_chunked == false)
 			request.setExpect("100-continue"); // No funciona el parseo, provicional
 		Response response(this->_config, request);
+		// std::cout << "\n" << request << "\n" << std::endl;
 		if (!(_lastRequest == request) || (_lastRequest == request && request.getMethod() != "GET"))
 		{
 			response.generateResponse();

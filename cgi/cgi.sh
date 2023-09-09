@@ -18,7 +18,7 @@ if [ "$REQUEST_METHOD" == "OPTIONS" ]
 then
     echo "HTTP/1.1 $REQUEST_STATUS OK"
     echo "Access-Control-Allow-Origin: http://localhost:$CONFIG_PORT"
-    echo "Access-Control-Allow-Methods: POST"
+    echo "Access-Control-Allow-Methods: $ACCESS_CONTROL"
     echo "Access-Control-Allow-Headers: content-range, content-type"
     echo ""
 fi

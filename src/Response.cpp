@@ -142,8 +142,8 @@ int	Response::methodBuild(int location_index)
 		return (buildPost());
 	else if (_request.getMethod() == "DELETE" && checkMethodRequest(location_index, DELETE) == 0)
 		return (buildDelete());
-	else if (_request.getMethod() == "OPTIONS" && checkMethodRequest(location_index, POST) == 0)
-		return (0);
+	else if (_request.getMethod() == "OPTIONS")
+		return (buildOptions());
 	else
 		setErrorPage(403);
 	return (0);
@@ -200,7 +200,7 @@ int	Response::buildDelete(void)
 
 int	Response::buildOptions(void)
 {
-	
+	this->_config.exportEnv("ACCESS_CONTROL", _request.getAccessControl());
 	return (0);
 }
 
@@ -264,6 +264,7 @@ int	Response::executeCGI(void)
 		int fd_response = dup(fd[0]);
 		close(fd[0]);
 		_fullResponse = readFileDescriptor(fd_response);
+		std::cout << "\n" << _fullResponse << "\n" << std::endl;
 	}
 	return (0);
 }
